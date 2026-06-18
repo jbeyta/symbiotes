@@ -38,4 +38,14 @@ describe("GET /api/dashboard", () => {
     expect(res.body.errors.jira).toMatch(/boom/);
     expect(res.body.prs).toHaveLength(2);
   });
+
+  it("survives a failing GitHub source", async () => {
+    const res = await request(
+      app({ getPrs: async () => { throw new Error("boom"); } })
+    ).get("/api/dashboard");
+    expect(res.status).toBe(200);
+    expect(res.body.prs).toEqual([]);
+    expect(res.body.errors.github).toMatch(/boom/);
+    expect(res.body.tickets).toHaveLength(1);
+  });
 });

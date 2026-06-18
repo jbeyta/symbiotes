@@ -39,7 +39,12 @@ export async function buildDashboard(deps: DashboardDeps): Promise<DashboardResp
 export function dashboardRouter(deps: DashboardDeps): Router {
   const router = Router();
   router.get("/", async (_req, res) => {
-    res.json(await buildDashboard(deps));
+    try {
+      res.json(await buildDashboard(deps));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      res.status(500).json({ tickets: [], prs: [], errors: { jira: msg, github: msg } });
+    }
   });
   return router;
 }
