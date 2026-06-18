@@ -13,8 +13,9 @@ interface SearchItem {
   title: string;
   html_url: string;
   repository_url: string;
-  pull_request?: { html_url: string };
 }
+
+const REPO_PREFIX = "https://api.github.com/repos/";
 
 export async function fetchMyOpenPrs(
   cfg: Config,
@@ -34,7 +35,9 @@ export async function fetchMyOpenPrs(
   return body.items.map((it) => ({
     number: it.number,
     title: it.title,
-    repo: it.repository_url.replace("https://api.github.com/repos/", ""),
+    repo: it.repository_url.startsWith(REPO_PREFIX)
+      ? it.repository_url.slice(REPO_PREFIX.length)
+      : it.repository_url,
     url: it.html_url,
     branch: "",
   }));

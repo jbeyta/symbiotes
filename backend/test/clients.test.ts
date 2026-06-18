@@ -44,14 +44,18 @@ describe("fetchMyOpenPrs", () => {
             title: "RW-1 add login",
             html_url: "https://github.com/o/r/pull/42",
             repository_url: "https://api.github.com/repos/o/r",
-            pull_request: { html_url: "x" },
-            head: undefined,
           },
         ],
       })
     );
     const prs = await fetchMyOpenPrs(cfg, stub as unknown as typeof fetch);
-    expect(prs[0]).toMatchObject({ number: 42, title: "RW-1 add login", repo: "o/r" });
+    expect(prs[0]).toEqual({
+      number: 42,
+      title: "RW-1 add login",
+      repo: "o/r",
+      url: "https://github.com/o/r/pull/42",
+      branch: "",
+    });
   });
 
   it("throws on a non-OK response", async () => {
