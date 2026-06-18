@@ -107,8 +107,6 @@ Single-page dashboard, four boxes in a responsive grid (stacks on narrow widths)
 - **Box 3 — Untracked tasks** (local CRUD): title, description, status dropdown. Statuses: **In Progress / Responded / Waiting on third party / Resolved**. Add / edit / delete inline.
 - **Box 4 — Quick notes** (local CRUD): list by title, click to expand description. Add / edit / delete.
 
-**Row spacing:** within every box, each row has `1rem` (~15px) margin below it, except the last row, which has no bottom margin.
-
 ## Data Model (SQLite)
 
 ```sql
