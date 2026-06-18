@@ -1,0 +1,32 @@
+export interface JiraTicketView { key: string; title: string; status: string; pr: number | null; }
+export interface PrView { number: number; title: string; repo: string; url: string; branch: string; jiraKey: string | null; }
+export interface DashboardResponse {
+  tickets: JiraTicketView[];
+  prs: PrView[];
+  errors: { jira: string | null; github: string | null };
+}
+export interface TaskView { id: number; title: string; description: string; status: string; created_at: string; updated_at: string; }
+export interface NoteView { id: number; title: string; description: string; created_at: string; updated_at: string; }
+
+async function json<T>(res: Response): Promise<T> {
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
+export const getDashboard = () => fetch("/api/dashboard").then(json<DashboardResponse>);
+
+export const listTasks = () => fetch("/api/tasks").then(json<TaskView[]>);
+export const createTask = (b: { title: string; description?: string; status?: string }) =>
+  fetch("/api/tasks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(json<TaskView>);
+export const updateTask = (id: number, b: Partial<{ title: string; description: string; status: string }>) =>
+  fetch(`/api/tasks/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(json<TaskView>);
+export const deleteTask = (id: number) => fetch(`/api/tasks/${id}`, { method: "DELETE" });
+
+export const listNotes = () => fetch("/api/notes").then(json<NoteView[]>);
+export const createNote = (b: { title: string; description?: string }) =>
+  fetch("/api/notes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(json<NoteView>);
+export const updateNote = (id: number, b: Partial<{ title: string; description: string }>) =>
+  fetch(`/api/notes/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(json<NoteView>);
+export const deleteNote = (id: number) => fetch(`/api/notes/${id}`, { method: "DELETE" });
+
+export const TASK_STATUSES = ["In Progress", "Responded", "Waiting on third party", "Resolved"] as const;
