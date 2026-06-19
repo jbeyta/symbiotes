@@ -15,10 +15,20 @@ export interface Note {
   updated_at: string;
 }
 
+export interface Todo {
+  id: number;
+  text: string;
+  done: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface NewTask { title: string; description?: string; status?: string; }
 export interface TaskPatch { title?: string; description?: string; status?: string; }
 export interface NewNote { title: string; description?: string; }
 export interface NotePatch { title?: string; description?: string; }
+export interface NewTodo { text: string; }
+export interface TodoPatch { text?: string; done?: boolean; }
 
 export interface Store {
   listTasks(): Task[];
@@ -30,4 +40,9 @@ export interface Store {
   createNote(n: NewNote): Note;
   updateNote(id: number, p: NotePatch): Note | null;
   deleteNote(id: number): boolean;
+
+  listTodos(): Todo[];
+  createTodo(t: NewTodo): Todo;
+  updateTodo(id: number, p: TodoPatch): Todo | null;
+  deleteTodo(id: number): boolean;
 }

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { getDashboard, listTasks, listNotes, type DashboardResponse, type TaskView, type NoteView } from "./api.js";
+import { getDashboard, listTasks, listTodos, type DashboardResponse, type TaskView, type TodoView } from "./api.js";
 import { JiraBox } from "./components/JiraBox.js";
 import { PrBox } from "./components/PrBox.js";
 import { TasksBox } from "./components/TasksBox.js";
-import { NotesBox } from "./components/NotesBox.js";
+import { TodosBox } from "./components/TodosBox.js";
+// NotesBox is kept for possible future use; swap it back into the grid to re-enable.
 
 const EMPTY: DashboardResponse = { tickets: [], prs: [], errors: { jira: null, github: null } };
 
@@ -11,7 +12,7 @@ export default function App() {
   const [dash, setDash] = useState<DashboardResponse>(EMPTY);
   const [loading, setLoading] = useState(false);
   const [tasks, setTasks] = useState<TaskView[]>([]);
-  const [notes, setNotes] = useState<NoteView[]>([]);
+  const [todos, setTodos] = useState<TodoView[]>([]);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -20,11 +21,11 @@ export default function App() {
   }, []);
 
   const loadTasks = useCallback(async () => setTasks(await listTasks()), []);
-  const loadNotes = useCallback(async () => setNotes(await listNotes()), []);
+  const loadTodos = useCallback(async () => setTodos(await listTodos()), []);
 
   useEffect(() => { void refresh(); }, [refresh]);
   useEffect(() => { void loadTasks(); }, [loadTasks]);
-  useEffect(() => { void loadNotes(); }, [loadNotes]);
+  useEffect(() => { void loadTodos(); }, [loadTodos]);
 
   return (
     <>
@@ -38,7 +39,7 @@ export default function App() {
         <JiraBox tickets={dash.tickets} error={dash.errors.jira} />
         <PrBox prs={dash.prs} error={dash.errors.github} />
         <TasksBox tasks={tasks} onChange={() => void loadTasks()} />
-        <NotesBox notes={notes} onChange={() => void loadNotes()} />
+        <TodosBox todos={todos} onChange={() => void loadTodos()} />
       </div>
     </>
   );

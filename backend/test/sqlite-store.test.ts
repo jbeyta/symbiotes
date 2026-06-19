@@ -39,3 +39,20 @@ describe("SqliteStore notes", () => {
     expect(store.listNotes()).toHaveLength(0);
   });
 });
+
+describe("SqliteStore todos", () => {
+  it("creates undone, toggles done, lists, deletes", () => {
+    const t = store.createTodo({ text: "Buy milk" });
+    expect(t.id).toBeGreaterThan(0);
+    expect(t.done).toBe(false);
+    expect(store.listTodos()).toHaveLength(1);
+
+    const updated = store.updateTodo(t.id, { done: true });
+    expect(updated?.done).toBe(true);
+    expect(store.updateTodo(9999, { done: true })).toBeNull();
+
+    expect(store.deleteTodo(t.id)).toBe(true);
+    expect(store.deleteTodo(t.id)).toBe(false);
+    expect(store.listTodos()).toHaveLength(0);
+  });
+});

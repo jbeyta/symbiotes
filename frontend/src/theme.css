@@ -40,5 +40,6 @@ input, textarea, select {
   width: 100%; background: var(--bg); color: var(--text);
   border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;
 }
+input[type="checkbox"] { width: auto; flex: none; cursor: pointer; }
 a { color: var(--accent); }
 .error { color: #ff6b6b; }

@@ -5,6 +5,7 @@ import type { Pr } from "./github.js";
 import { dashboardRouter } from "./routes/dashboard.js";
 import { tasksRouter } from "./routes/tasks.js";
 import { notesRouter } from "./routes/notes.js";
+import { todosRouter } from "./routes/todos.js";
 
 export interface AppOptions {
   store: Store;
@@ -18,5 +19,6 @@ export function createApp(opts: AppOptions): express.Express {
   app.use("/api/dashboard", dashboardRouter({ getTickets: opts.getTickets, getPrs: opts.getPrs }));
   app.use("/api/tasks", tasksRouter(opts.store));
   app.use("/api/notes", notesRouter(opts.store));
+  app.use("/api/todos", todosRouter(opts.store));
   return app;
 }

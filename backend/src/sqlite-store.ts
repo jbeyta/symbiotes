@@ -1,7 +1,16 @@
 import Database from "better-sqlite3";
 import type {
-  Store, Task, Note, NewTask, TaskPatch, NewNote, NotePatch,
+  Store, Task, Note, Todo, NewTask, TaskPatch, NewNote, NotePatch, NewTodo, TodoPatch,
 } from "./store.js";
+
+// Raw todo row as stored in SQLite (done is an integer 0/1).
+interface TodoRow {
+  id: number;
+  text: string;
+  done: number;
+  created_at: string;
+  updated_at: string;
+}
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS tasks (
@@ -16,6 +25,13 @@ CREATE TABLE IF NOT EXISTS notes (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   title       TEXT NOT NULL,
   description TEXT NOT NULL DEFAULT '',
+  created_at  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS todos (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  text        TEXT NOT NULL,
+  done        INTEGER NOT NULL DEFAULT 0,
   created_at  TEXT NOT NULL,
   updated_at  TEXT NOT NULL
 );
@@ -93,10 +109,51 @@ export class SqliteStore implements Store {
     return this.db.prepare("DELETE FROM notes WHERE id=?").run(id).changes > 0;
   }
 
+  listTodos(): Todo[] {
+    const rows = this.db
+      .prepare("SELECT * FROM todos ORDER BY done ASC, updated_at DESC")
+      .all() as TodoRow[];
+    return rows.map(toTodo);
+  }
+
+  createTodo(t: NewTodo): Todo {
+    const now = this.now();
+    const info = this.db
+      .prepare("INSERT INTO todos (text, done, created_at, updated_at) VALUES (?, 0, ?, ?)")
+      .run(t.text, now, now);
+    return this.getTodo(Number(info.lastInsertRowid))!;
+  }
+
+  updateTodo(id: number, p: TodoPatch): Todo | null {
+    const existing = this.getTodo(id);
+    if (!existing) return null;
+    const next = {
+      text: p.text ?? existing.text,
+      done: p.done ?? existing.done,
+    };
+    this.db
+      .prepare("UPDATE todos SET text=?, done=?, updated_at=? WHERE id=?")
+      .run(next.text, next.done ? 1 : 0, this.now(), id);
+    return this.getTodo(id);
+  }
+
+  deleteTodo(id: number): boolean {
+    return this.db.prepare("DELETE FROM todos WHERE id=?").run(id).changes > 0;
+  }
+
+  private getTodo(id: number): Todo | null {
+    const row = this.db.prepare("SELECT * FROM todos WHERE id=?").get(id) as TodoRow | undefined;
+    return row ? toTodo(row) : null;
+  }
+
   private getTask(id: number): Task | null {
     return (this.db.prepare("SELECT * FROM tasks WHERE id=?").get(id) as Task) ?? null;
   }
   private getNote(id: number): Note | null {
     return (this.db.prepare("SELECT * FROM notes WHERE id=?").get(id) as Note) ?? null;
   }
+}
+
+function toTodo(row: TodoRow): Todo {
+  return { ...row, done: row.done === 1 };
 }
