@@ -22,4 +22,9 @@ describe("PrBox", () => {
     await userEvent.click(screen.getByRole("button", { name: "Create To-Do" }));
     expect(onCreateTodo).toHaveBeenCalledWith("#42 add login");
   });
+
+  it("disables Create To-Do when a matching to-do already exists", () => {
+    render(<PrBox prs={prs} error={null} onCreateTodo={vi.fn()} existingTodos={new Set(["#42 add login"])} />);
+    expect(screen.getByRole("button", { name: "To-Do added" })).toBeDisabled();
+  });
 });

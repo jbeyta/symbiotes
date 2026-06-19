@@ -10,20 +10,44 @@ export function isDefaultVisibleStatus(status: string): boolean {
   return s.includes("progress") || s.includes("review") || (s.includes("ready") && s.includes("release"));
 }
 
+const LS_SELECTED = "symbiotes.jira.filter.selected";
+const LS_KNOWN = "symbiotes.jira.filter.known";
+
+function loadSet(key: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(key);
+    const arr = raw ? JSON.parse(raw) : null;
+    return Array.isArray(arr) ? new Set(arr.filter((x): x is string => typeof x === "string")) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function saveSet(key: string, set: Set<string>) {
+  try {
+    localStorage.setItem(key, JSON.stringify([...set]));
+  } catch {
+    /* storage unavailable — filter just won't persist */
+  }
+}
+
 export function JiraBox({
   tickets,
   error,
   onCreateTodo,
+  existingTodos = new Set<string>(),
 }: {
   tickets: JiraTicketView[];
   error: string | null;
   onCreateTodo: (text: string) => void;
+  existingTodos?: Set<string>;
 }) {
   const [filterOpen, setFilterOpen] = useState(false);
-  // Statuses currently shown. Defaults are applied to each status the first
-  // time it appears; explicit toggles persist across refreshes this session.
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [known, setKnown] = useState<Set<string>>(new Set());
+  // Statuses currently shown, persisted in localStorage so the filter survives
+  // full reloads. `known` tracks statuses already seen, so defaults are applied
+  // only the first time a status appears — a status you unchecked stays unchecked.
+  const [selected, setSelected] = useState<Set<string>>(() => loadSet(LS_SELECTED));
+  const [known, setKnown] = useState<Set<string>>(() => loadSet(LS_KNOWN));
 
   useEffect(() => {
     const fresh = tickets.map((t) => t.status).filter((s) => !known.has(s));
@@ -35,6 +59,9 @@ export function JiraBox({
       return next;
     });
   }, [tickets, known]);
+
+  useEffect(() => { saveSet(LS_SELECTED, selected); }, [selected]);
+  useEffect(() => { saveSet(LS_KNOWN, known); }, [known]);
 
   const allStatuses = [...new Set(tickets.map((t) => t.status))].sort();
   const visible = tickets.filter((t) => selected.has(t.status));
@@ -61,22 +88,27 @@ export function JiraBox({
       {!error && tickets.length > 0 && visible.length === 0 && (
         <div className="muted">No tickets match the status filter.</div>
       )}
-      {visible.map((t) => (
-        <div className="row" key={t.key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ flex: 1 }}>
-            <a href={t.url} target="_blank" rel="noreferrer"><strong>{t.key}</strong></a> {t.title}{" "}
-            <span className="muted">· {t.status}</span>
-            {t.pr != null && <span className="muted"> · PR #{t.pr}</span>}
-          </span>
-          <button
-            className="secondary"
-            style={{ flex: "none", whiteSpace: "nowrap" }}
-            onClick={() => onCreateTodo(`${t.key} ${t.title}`)}
-          >
-            Create To-Do
-          </button>
-        </div>
-      ))}
+      {visible.map((t) => {
+        const todoText = `${t.key} ${t.title}`;
+        const added = existingTodos.has(todoText);
+        return (
+          <div className="row" key={t.key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ flex: 1 }}>
+              <a href={t.url} target="_blank" rel="noreferrer"><strong>{t.key}</strong></a> {t.title}{" "}
+              <span className="muted">· {t.status}</span>
+              {t.pr != null && <span className="muted"> · PR #{t.pr}</span>}
+            </span>
+            <button
+              className="secondary"
+              style={{ flex: "none", whiteSpace: "nowrap" }}
+              disabled={added}
+              onClick={() => onCreateTodo(todoText)}
+            >
+              {added ? "To-Do added" : "Create To-Do"}
+            </button>
+          </div>
+        );
+      })}
 
       {filterOpen && (
         <Modal title="Filter by status" onClose={() => setFilterOpen(false)}>

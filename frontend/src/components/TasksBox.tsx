@@ -7,10 +7,12 @@ export function TasksBox({
   tasks,
   onChange,
   onCreateTodo,
+  existingTodos = new Set<string>(),
 }: {
   tasks: TaskView[];
   onChange: () => void;
   onCreateTodo: (text: string) => void;
+  existingTodos?: Set<string>;
 }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -70,8 +72,13 @@ export function TasksBox({
             <select value={t.status} onChange={(e) => void setRowStatus(t.id, e.target.value)}>
               {TASK_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
-            <button className="secondary" style={{ whiteSpace: "nowrap" }} onClick={() => onCreateTodo(t.title)}>
-              Create To-Do
+            <button
+              className="secondary"
+              style={{ whiteSpace: "nowrap" }}
+              disabled={existingTodos.has(t.title)}
+              onClick={() => onCreateTodo(t.title)}
+            >
+              {existingTodos.has(t.title) ? "To-Do added" : "Create To-Do"}
             </button>
             <button className="secondary" aria-label={`Delete ${t.title}`} onClick={() => void remove(t.id)}>
               Delete

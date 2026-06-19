@@ -45,4 +45,9 @@ describe("TasksBox", () => {
     await userEvent.click(screen.getByRole("button", { name: "Create To-Do" }));
     expect(onCreateTodo).toHaveBeenCalledWith("Chase vendor");
   });
+
+  it("disables Create To-Do when a matching to-do already exists", () => {
+    render(<TasksBox tasks={tasks} onChange={vi.fn()} onCreateTodo={vi.fn()} existingTodos={new Set(["Chase vendor"])} />);
+    expect(screen.getByRole("button", { name: "To-Do added" })).toBeDisabled();
+  });
 });

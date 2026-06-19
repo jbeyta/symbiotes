@@ -80,6 +80,7 @@ button {
   border-radius: 6px; padding: 6px 12px; cursor: pointer;
 }
 button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
 .icon-btn {
   display: inline-flex; align-items: center; justify-content: center;
   background: transparent; border: 1px solid var(--border); color: var(--muted);

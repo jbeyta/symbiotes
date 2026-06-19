@@ -27,6 +27,10 @@ export default function App() {
     await loadTodos();
   }, [loadTodos]);
 
+  // Texts of existing to-dos, so item boxes can disable "Create To-Do" for
+  // anything already added.
+  const todoTexts = new Set(todos.map((t) => t.text));
+
   useEffect(() => { void refresh(); }, [refresh]);
   useEffect(() => { void loadTasks(); }, [loadTasks]);
   useEffect(() => { void loadTodos(); }, [loadTodos]);
@@ -40,9 +44,9 @@ export default function App() {
         </button>
       </div>
       <div className="grid">
-        <JiraBox tickets={dash.tickets} error={dash.errors.jira} onCreateTodo={createTodoFromItem} />
-        <PrBox prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} />
-        <TasksBox tasks={tasks} onChange={() => void loadTasks()} onCreateTodo={createTodoFromItem} />
+        <JiraBox tickets={dash.tickets} error={dash.errors.jira} onCreateTodo={createTodoFromItem} existingTodos={todoTexts} />
+        <PrBox prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} existingTodos={todoTexts} />
+        <TasksBox tasks={tasks} onChange={() => void loadTasks()} onCreateTodo={createTodoFromItem} existingTodos={todoTexts} />
         <TodosBox todos={todos} onChange={() => void loadTodos()} />
       </div>
     </>
