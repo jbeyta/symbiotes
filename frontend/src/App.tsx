@@ -37,6 +37,12 @@ export default function App() {
 
   return (
     <>
+      <div className="bg-blobs" aria-hidden="true">
+        <span className="blob blob-1" />
+        <span className="blob blob-2" />
+        <span className="blob blob-3" />
+        <span className="blob blob-4" />
+      </div>
       <div className="topbar">
         <strong>Symbiotes</strong>
         <button onClick={() => void refresh()} disabled={loading}>
