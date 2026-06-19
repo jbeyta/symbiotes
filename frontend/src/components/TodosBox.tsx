@@ -56,7 +56,7 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
             onChange={() => void toggle(t.id, !t.done)}
           />
           <span style={{ flex: 1, textDecoration: t.done ? "line-through" : "none", color: t.done ? "var(--muted)" : "inherit" }}>
-            {t.text}
+            {t.url ? <a href={t.url} target="_blank" rel="noreferrer">{t.text}</a> : t.text}
           </span>
           <button className="secondary" aria-label={`Remove ${t.text}`} onClick={() => void remove(t.id)}>
             ×

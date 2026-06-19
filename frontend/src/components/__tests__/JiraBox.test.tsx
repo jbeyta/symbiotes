@@ -34,7 +34,7 @@ describe("JiraBox", () => {
     const onCreateTodo = vi.fn();
     render(<JiraBox tickets={tickets} error={null} onCreateTodo={onCreateTodo} />);
     await userEvent.click(screen.getByRole("button", { name: "Create To-Do" }));
-    expect(onCreateTodo).toHaveBeenCalledWith("RW-1 Fix login");
+    expect(onCreateTodo).toHaveBeenCalledWith("RW-1 Fix login", "https://x.atlassian.net/browse/RW-1");
   });
 
   it("shows only default statuses, and reveals others when toggled in the filter", async () => {

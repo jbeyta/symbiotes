@@ -8,6 +8,7 @@ interface TodoRow {
   id: number;
   text: string;
   done: number;
+  url: string;
   created_at: string;
   updated_at: string;
 }
@@ -32,6 +33,7 @@ CREATE TABLE IF NOT EXISTS todos (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   text        TEXT NOT NULL,
   done        INTEGER NOT NULL DEFAULT 0,
+  url         TEXT NOT NULL DEFAULT '',
   created_at  TEXT NOT NULL,
   updated_at  TEXT NOT NULL
 );
@@ -44,6 +46,15 @@ export class SqliteStore implements Store {
     this.db = new Database(filename);
     this.db.pragma("journal_mode = WAL");
     this.db.exec(SCHEMA);
+    this.migrate();
+  }
+
+  // Lightweight migrations for databases created by earlier versions.
+  private migrate() {
+    const todoCols = this.db.prepare("PRAGMA table_info(todos)").all() as { name: string }[];
+    if (!todoCols.some((c) => c.name === "url")) {
+      this.db.exec("ALTER TABLE todos ADD COLUMN url TEXT NOT NULL DEFAULT ''");
+    }
   }
 
   private now(): string { return new Date().toISOString(); }
@@ -119,8 +130,8 @@ export class SqliteStore implements Store {
   createTodo(t: NewTodo): Todo {
     const now = this.now();
     const info = this.db
-      .prepare("INSERT INTO todos (text, done, created_at, updated_at) VALUES (?, 0, ?, ?)")
-      .run(t.text, now, now);
+      .prepare("INSERT INTO todos (text, done, url, created_at, updated_at) VALUES (?, 0, ?, ?, ?)")
+      .run(t.text, t.url ?? "", now, now);
     return this.getTodo(Number(info.lastInsertRowid))!;
   }
 

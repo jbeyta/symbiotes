@@ -22,8 +22,8 @@ export default function App() {
 
   const loadTasks = useCallback(async () => setTasks(await listTasks()), []);
   const loadTodos = useCallback(async () => setTodos(await listTodos()), []);
-  const createTodoFromItem = useCallback(async (text: string) => {
-    await createTodo({ text });
+  const createTodoFromItem = useCallback(async (text: string, url?: string) => {
+    await createTodo({ text, url });
     await loadTodos();
   }, [loadTodos]);
 

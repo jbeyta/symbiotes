@@ -19,6 +19,7 @@ export interface Todo {
   id: number;
   text: string;
   done: boolean;
+  url: string;
   created_at: string;
   updated_at: string;
 }
@@ -27,7 +28,7 @@ export interface NewTask { title: string; description?: string; status?: string;
 export interface TaskPatch { title?: string; description?: string; status?: string; }
 export interface NewNote { title: string; description?: string; }
 export interface NotePatch { title?: string; description?: string; }
-export interface NewTodo { text: string; }
+export interface NewTodo { text: string; url?: string; }
 export interface TodoPatch { text?: string; done?: boolean; }
 
 export interface Store {

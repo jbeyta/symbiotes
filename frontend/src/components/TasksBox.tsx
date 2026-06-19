@@ -11,7 +11,7 @@ export function TasksBox({
 }: {
   tasks: TaskView[];
   onChange: () => void;
-  onCreateTodo: (text: string) => void;
+  onCreateTodo: (text: string, url?: string) => void;
   existingTodos?: Set<string>;
 }) {
   const [open, setOpen] = useState(false);

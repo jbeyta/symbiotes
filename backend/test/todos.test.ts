@@ -14,9 +14,10 @@ function app() {
 describe("todos CRUD", () => {
   it("creates (not done), lists, toggles done, deletes", async () => {
     const a = app();
-    const created = await request(a).post("/api/todos").send({ text: "Deploy the thing" });
+    const created = await request(a).post("/api/todos").send({ text: "Deploy the thing", url: "https://gh/pr/1" });
     expect(created.status).toBe(201);
     expect(created.body.done).toBe(false);
+    expect(created.body.url).toBe("https://gh/pr/1");
     const id = created.body.id;
 
     const list = await request(a).get("/api/todos");

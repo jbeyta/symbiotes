@@ -7,11 +7,11 @@ export function todosRouter(store: Store): Router {
   router.get("/", (_req, res) => res.json(store.listTodos()));
 
   router.post("/", (req, res) => {
-    const { text } = req.body ?? {};
+    const { text, url } = req.body ?? {};
     if (!text || typeof text !== "string") {
       return res.status(400).json({ error: "text is required" });
     }
-    res.status(201).json(store.createTodo({ text }));
+    res.status(201).json(store.createTodo({ text, url: typeof url === "string" ? url : undefined }));
   });
 
   router.put("/:id", (req, res) => {

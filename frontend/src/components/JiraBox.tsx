@@ -39,7 +39,7 @@ export function JiraBox({
 }: {
   tickets: JiraTicketView[];
   error: string | null;
-  onCreateTodo: (text: string) => void;
+  onCreateTodo: (text: string, url?: string) => void;
   existingTodos?: Set<string>;
 }) {
   const [filterOpen, setFilterOpen] = useState(false);
@@ -102,7 +102,7 @@ export function JiraBox({
               className="secondary"
               style={{ flex: "none", whiteSpace: "nowrap" }}
               disabled={added}
-              onClick={() => onCreateTodo(todoText)}
+              onClick={() => onCreateTodo(todoText, t.url)}
             >
               {added ? "To-Do added" : "Create To-Do"}
             </button>

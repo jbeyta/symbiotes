@@ -10,7 +10,7 @@ export function PrBox({
 }: {
   prs: PrView[];
   error: string | null;
-  onCreateTodo: (text: string) => void;
+  onCreateTodo: (text: string, url?: string) => void;
   existingTodos?: Set<string>;
 }) {
   return (
@@ -30,7 +30,7 @@ export function PrBox({
               className="secondary"
               style={{ flex: "none", whiteSpace: "nowrap" }}
               disabled={added}
-              onClick={() => onCreateTodo(todoText)}
+              onClick={() => onCreateTodo(todoText, p.url)}
             >
               {added ? "To-Do added" : "Create To-Do"}
             </button>

@@ -20,7 +20,7 @@ describe("PrBox", () => {
     const onCreateTodo = vi.fn();
     render(<PrBox prs={prs} error={null} onCreateTodo={onCreateTodo} />);
     await userEvent.click(screen.getByRole("button", { name: "Create To-Do" }));
-    expect(onCreateTodo).toHaveBeenCalledWith("#42 add login");
+    expect(onCreateTodo).toHaveBeenCalledWith("#42 add login", "https://github.com/o/r/pull/42");
   });
 
   it("disables Create To-Do when a matching to-do already exists", () => {

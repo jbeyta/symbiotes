@@ -45,6 +45,7 @@ describe("SqliteStore todos", () => {
     const t = store.createTodo({ text: "Buy milk" });
     expect(t.id).toBeGreaterThan(0);
     expect(t.done).toBe(false);
+    expect(t.url).toBe("");
     expect(store.listTodos()).toHaveLength(1);
 
     const updated = store.updateTodo(t.id, { done: true });
@@ -54,5 +55,10 @@ describe("SqliteStore todos", () => {
     expect(store.deleteTodo(t.id)).toBe(true);
     expect(store.deleteTodo(t.id)).toBe(false);
     expect(store.listTodos()).toHaveLength(0);
+  });
+
+  it("stores a source url when provided", () => {
+    const t = store.createTodo({ text: "RW-1 Fix login", url: "https://x.atlassian.net/browse/RW-1" });
+    expect(t.url).toBe("https://x.atlassian.net/browse/RW-1");
   });
 });

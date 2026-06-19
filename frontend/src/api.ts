@@ -7,7 +7,7 @@ export interface DashboardResponse {
 }
 export interface TaskView { id: number; title: string; description: string; status: string; created_at: string; updated_at: string; }
 export interface NoteView { id: number; title: string; description: string; created_at: string; updated_at: string; }
-export interface TodoView { id: number; text: string; done: boolean; created_at: string; updated_at: string; }
+export interface TodoView { id: number; text: string; done: boolean; url: string; created_at: string; updated_at: string; }
 
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) throw new Error(`Request failed: ${res.status}`);
@@ -31,7 +31,7 @@ export const updateNote = (id: number, b: Partial<{ title: string; description: 
 export const deleteNote = (id: number) => fetch(`/api/notes/${id}`, { method: "DELETE" });
 
 export const listTodos = () => fetch("/api/todos").then(json<TodoView[]>);
-export const createTodo = (b: { text: string }) =>
+export const createTodo = (b: { text: string; url?: string }) =>
   fetch("/api/todos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(json<TodoView>);
 export const updateTodo = (id: number, b: Partial<{ text: string; done: boolean }>) =>
   fetch(`/api/todos/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(json<TodoView>);

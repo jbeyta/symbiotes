@@ -7,7 +7,7 @@ import * as api from "../../api.js";
 beforeEach(() => vi.restoreAllMocks());
 
 const todos = [
-  { id: 1, text: "Deploy the thing", done: false, created_at: "", updated_at: "" },
+  { id: 1, text: "Deploy the thing", done: false, url: "", created_at: "", updated_at: "" },
 ];
 
 describe("TodosBox", () => {
@@ -44,5 +44,16 @@ describe("TodosBox", () => {
     await userEvent.click(screen.getByRole("button", { name: "Remove Deploy the thing" }));
     expect(delSpy).toHaveBeenCalledWith(1);
     expect(onChange).toHaveBeenCalled();
+  });
+
+  it("renders the text as a link when the todo has a source url", () => {
+    const linked = [{ id: 9, text: "RW-1 Fix login", done: false, url: "https://x.atlassian.net/browse/RW-1", created_at: "", updated_at: "" }];
+    render(<TodosBox todos={linked} onChange={vi.fn()} />);
+    expect(screen.getByRole("link", { name: "RW-1 Fix login" })).toHaveAttribute("href", "https://x.atlassian.net/browse/RW-1");
+  });
+
+  it("renders plain text (no link) when there is no url", () => {
+    render(<TodosBox todos={todos} onChange={vi.fn()} />);
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 });
