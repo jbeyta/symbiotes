@@ -40,10 +40,7 @@ export function TasksBox({
   }
 
   return (
-    <Box title="Untracked Tasks">
-      <div className="row">
-        <button onClick={() => setOpen(true)}>Add</button>
-      </div>
+    <Box title="Untracked Tasks" action={<button onClick={() => setOpen(true)}>Add</button>}>
       {open && (
         <Modal title="New Task" onClose={close}>
           <input

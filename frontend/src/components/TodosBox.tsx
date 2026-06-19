@@ -30,10 +30,7 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
   }
 
   return (
-    <Box title="To-Do Today">
-      <div className="row">
-        <button onClick={() => setOpen(true)}>Add</button>
-      </div>
+    <Box title="To-Do Today" action={<button onClick={() => setOpen(true)}>Add</button>}>
       {open && (
         <Modal title="New To-Do" onClose={close}>
           <input
