@@ -23,4 +23,8 @@ describe("loadConfig", () => {
     expect(() => loadConfig({})).toThrow(/JIRA_BASE_URL/);
     expect(() => loadConfig({})).toThrow(/GITHUB_TOKEN/);
   });
+
+  it("throws when PORT is non-numeric", () => {
+    expect(() => loadConfig({ ...full, PORT: "abc" })).toThrow(/PORT must be a number/);
+  });
 });

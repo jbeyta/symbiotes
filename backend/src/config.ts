@@ -23,6 +23,11 @@ export function loadConfig(env: NodeJS.ProcessEnv): Config {
     jiraEmail: env.JIRA_EMAIL!,
     jiraApiToken: env.JIRA_API_TOKEN!,
     githubToken: env.GITHUB_TOKEN!,
-    port: env.PORT ? Number(env.PORT) : 3000,
+    port: (() => {
+      if (!env.PORT) return 3000;
+      const n = Number(env.PORT);
+      if (isNaN(n)) throw new Error("PORT must be a number, got: " + env.PORT);
+      return n;
+    })(),
   };
 }

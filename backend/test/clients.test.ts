@@ -16,7 +16,7 @@ function jsonResponse(body: unknown, ok = true): Response {
 }
 
 describe("fetchMyTickets", () => {
-  it("maps Jira issues to tickets", async () => {
+  it("maps Jira issues to tickets and calls the new endpoint", async () => {
     const stub = vi.fn(async () =>
       jsonResponse({
         issues: [
@@ -26,6 +26,9 @@ describe("fetchMyTickets", () => {
     );
     const tickets = await fetchMyTickets(cfg, stub as unknown as typeof fetch);
     expect(tickets).toEqual([{ key: "RW-1", title: "Fix login", status: "In Progress" }]);
+    const [calledUrl, calledOptions] = stub.mock.calls[0] as [string, RequestInit];
+    expect(calledUrl).toMatch(/\/rest\/api\/3\/search\/jql$/);
+    expect(calledOptions.method).toBe("POST");
   });
 
   it("throws on a non-OK response", async () => {
