@@ -1,6 +1,7 @@
 :root {
   --bg: #0f1115;
   --panel: #171a21;
+  --panel-75: rgba(23, 26, 33, 0.75); /* --panel at 0.75 alpha, so blobs show through */
   --border: #262b36;
   --text: #e6e8ec;
   --muted: #9aa3b2;
@@ -47,7 +48,7 @@ body {
   grid-template-rows: 1fr 1fr;
 }
 .box {
-  background: var(--panel); border: 1px solid var(--border);
+  background: var(--panel-75); border: 1px solid var(--border);
   border-radius: 10px;
   /* No top padding: the sticky header owns the top edge so nothing peeks above it. */
   padding: 0 16px 16px;
