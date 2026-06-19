@@ -5,7 +5,19 @@
   --text: #e6e8ec;
   --muted: #9aa3b2;
   --accent: #5b9dff;
+  /* Render native UI (incl. scrollbars) dark. */
+  color-scheme: dark;
 }
+/* Scrollbars matched to the dark theme (WebKit + Firefox). */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 8px;
+  border: 2px solid var(--panel);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
 body {
