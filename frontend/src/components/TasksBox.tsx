@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Box } from "./Box.js";
+import { Modal } from "./Modal.js";
 import { TASK_STATUSES, createTask, updateTask, deleteTask, type TaskView } from "../api.js";
 
 export function TasksBox({
@@ -11,14 +12,20 @@ export function TasksBox({
   onChange: () => void;
   onCreateTodo: (text: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState<string>(TASK_STATUSES[0]);
+
+  function close() {
+    setOpen(false);
+    setTitle("");
+    setStatus(TASK_STATUSES[0]);
+  }
 
   async function add() {
     if (!title.trim()) return;
     await createTask({ title: title.trim(), status });
-    setTitle("");
-    setStatus(TASK_STATUSES[0]);
+    close();
     onChange();
   }
 
@@ -35,18 +42,28 @@ export function TasksBox({
   return (
     <Box title="Untracked Tasks">
       <div className="row">
-        <input
-          placeholder="New task title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <select value={status} onChange={(e) => setStatus(e.target.value)}>
-            {TASK_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <button onClick={() => void add()}>Add</button>
-        </div>
+        <button onClick={() => setOpen(true)}>Add</button>
       </div>
+      {open && (
+        <Modal title="New Task" onClose={close}>
+          <input
+            autoFocus
+            placeholder="New task title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") void add(); }}
+          />
+          <div style={{ marginTop: 8 }}>
+            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+              {TASK_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="modal-actions">
+            <button className="secondary" onClick={close}>Cancel</button>
+            <button onClick={() => void add()}>Add Task</button>
+          </div>
+        </Modal>
+      )}
       {tasks.length === 0 && <div className="muted">Nothing untracked right now.</div>}
       {tasks.map((t) => (
         <div className="row" key={t.id}>

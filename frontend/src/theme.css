@@ -36,12 +36,13 @@ body {
 }
 .box {
   background: var(--panel); border: 1px solid var(--border);
-  border-radius: 10px; padding: 16px;
+  border-radius: 10px;
+  /* No top padding: the sticky header owns the top edge so nothing peeks above it. */
+  padding: 0 16px 16px;
   min-height: 0;          /* allow the box to shrink within its grid cell */
   overflow-y: auto;       /* scroll inside the box when content overflows */
 }
-/* Title sticks to the top of its box while the content scrolls underneath.
-   Negative margins pull it to the box edges and cover the 16px padding gap. */
+/* Title pinned flush to the top of its box; rows scroll underneath it. */
 .box h2 {
   position: sticky;
   top: 0;
@@ -49,12 +50,27 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: -16px -16px 12px;
-  padding: 16px 16px 8px;
+  margin: 0 -16px 12px;   /* span to the box's inner edges */
+  padding: 16px;          /* the box's top padding lives here */
   background: var(--panel);
   font-size: 15px;
 }
 .box h2 svg { flex: none; }
+
+/* Creation modal */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: 20px;
+  width: 340px; max-width: calc(100vw - 32px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+.modal-title { margin: 0 0 14px; font-size: 15px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 /* Row spacing rule: 1rem below each row, none on the last. */
 .row { margin-bottom: 1rem; }
 .row:last-child { margin-bottom: 0; }

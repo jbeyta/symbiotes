@@ -11,18 +11,21 @@ const todos = [
 ];
 
 describe("TodosBox", () => {
-  it("renders todos and adds one", async () => {
+  it("adds a todo via the modal", async () => {
     const onChange = vi.fn();
     const createSpy = vi.spyOn(api, "createTodo").mockResolvedValue({ ...todos[0], id: 2, text: "New item" });
     render(<TodosBox todos={todos} onChange={onChange} />);
 
     expect(screen.getByText("Deploy the thing")).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("Add a to-do")).not.toBeInTheDocument();
 
-    await userEvent.type(screen.getByPlaceholderText("Add a to-do"), "New item");
     await userEvent.click(screen.getByRole("button", { name: "Add" }));
+    await userEvent.type(screen.getByPlaceholderText("Add a to-do"), "New item");
+    await userEvent.click(screen.getByRole("button", { name: "Add To-Do" }));
 
     expect(createSpy).toHaveBeenCalledWith({ text: "New item" });
     expect(onChange).toHaveBeenCalled();
+    expect(screen.queryByPlaceholderText("Add a to-do")).not.toBeInTheDocument();
   });
 
   it("toggles a todo's done state via its checkbox", async () => {

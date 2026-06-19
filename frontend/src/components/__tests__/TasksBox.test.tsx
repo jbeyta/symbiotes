@@ -11,18 +11,23 @@ const tasks = [
 ];
 
 describe("TasksBox", () => {
-  it("renders tasks and adds one", async () => {
+  it("adds a task via the modal", async () => {
     const onChange = vi.fn();
     const createSpy = vi.spyOn(api, "createTask").mockResolvedValue({ ...tasks[0], id: 2, title: "New" });
     render(<TasksBox tasks={tasks} onChange={onChange} onCreateTodo={vi.fn()} />);
 
     expect(screen.getByText("Chase vendor")).toBeInTheDocument();
+    // Input only exists once the modal is opened.
+    expect(screen.queryByPlaceholderText("New task title")).not.toBeInTheDocument();
 
-    await userEvent.type(screen.getByPlaceholderText("New task title"), "New");
     await userEvent.click(screen.getByRole("button", { name: "Add" }));
+    await userEvent.type(screen.getByPlaceholderText("New task title"), "New");
+    await userEvent.click(screen.getByRole("button", { name: "Add Task" }));
 
     expect(createSpy).toHaveBeenCalledWith({ title: "New", status: "In Progress" });
     expect(onChange).toHaveBeenCalled();
+    // Modal closes after a successful add.
+    expect(screen.queryByPlaceholderText("New task title")).not.toBeInTheDocument();
   });
 
   it("deletes a task", async () => {

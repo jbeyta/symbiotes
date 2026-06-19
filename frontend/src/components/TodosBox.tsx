@@ -1,14 +1,21 @@
 import { useState } from "react";
 import { Box } from "./Box.js";
+import { Modal } from "./Modal.js";
 import { createTodo, updateTodo, deleteTodo, type TodoView } from "../api.js";
 
 export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () => void }) {
+  const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
+
+  function close() {
+    setOpen(false);
+    setText("");
+  }
 
   async function add() {
     if (!text.trim()) return;
     await createTodo({ text: text.trim() });
-    setText("");
+    close();
     onChange();
   }
 
@@ -24,15 +31,24 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
 
   return (
     <Box title="To-Do Today">
-      <div className="row" style={{ display: "flex", gap: 8 }}>
-        <input
-          placeholder="Add a to-do"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") void add(); }}
-        />
-        <button onClick={() => void add()}>Add</button>
+      <div className="row">
+        <button onClick={() => setOpen(true)}>Add</button>
       </div>
+      {open && (
+        <Modal title="New To-Do" onClose={close}>
+          <input
+            autoFocus
+            placeholder="Add a to-do"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") void add(); }}
+          />
+          <div className="modal-actions">
+            <button className="secondary" onClick={close}>Cancel</button>
+            <button onClick={() => void add()}>Add To-Do</button>
+          </div>
+        </Modal>
+      )}
       {todos.length === 0 && <div className="muted">Nothing to do — add something.</div>}
       {todos.map((t) => (
         <div className="row" key={t.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
