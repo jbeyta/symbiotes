@@ -46,10 +46,14 @@ describe("TodosBox", () => {
     expect(onChange).toHaveBeenCalled();
   });
 
-  it("renders the text as a link when the todo has a source url", () => {
+  it("links only the leading identifier when the todo has a source url", () => {
     const linked = [{ id: 9, text: "RW-1 Fix login", done: false, url: "https://x.atlassian.net/browse/RW-1", created_at: "", updated_at: "" }];
     render(<TodosBox todos={linked} onChange={vi.fn()} />);
-    expect(screen.getByRole("link", { name: "RW-1 Fix login" })).toHaveAttribute("href", "https://x.atlassian.net/browse/RW-1");
+    // The link is just "RW-1", not the whole text.
+    expect(screen.getByRole("link", { name: "RW-1" })).toHaveAttribute("href", "https://x.atlassian.net/browse/RW-1");
+    expect(screen.queryByRole("link", { name: "RW-1 Fix login" })).not.toBeInTheDocument();
+    // The title text is still present (alongside the link).
+    expect(screen.getByText(/Fix login/)).toBeInTheDocument();
   });
 
   it("renders plain text (no link) when there is no url", () => {

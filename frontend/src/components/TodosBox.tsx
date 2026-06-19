@@ -3,6 +3,19 @@ import { Box } from "./Box.js";
 import { Modal } from "./Modal.js";
 import { createTodo, updateTodo, deleteTodo, type TodoView } from "../api.js";
 
+// Link only the leading identifier (e.g. "RW-1" or "#42"), like the Jira/PR boxes.
+function LinkedId({ text, url }: { text: string; url: string }) {
+  const i = text.indexOf(" ");
+  const id = i === -1 ? text : text.slice(0, i);
+  const rest = i === -1 ? "" : text.slice(i);
+  return (
+    <>
+      <a href={url} target="_blank" rel="noreferrer">{id}</a>
+      {rest}
+    </>
+  );
+}
+
 export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () => void }) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
@@ -56,7 +69,7 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
             onChange={() => void toggle(t.id, !t.done)}
           />
           <span style={{ flex: 1, textDecoration: t.done ? "line-through" : "none", color: t.done ? "var(--muted)" : "inherit" }}>
-            {t.url ? <a href={t.url} target="_blank" rel="noreferrer">{t.text}</a> : t.text}
+            {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
           </span>
           <button className="secondary" aria-label={`Remove ${t.text}`} onClick={() => void remove(t.id)}>
             ×
