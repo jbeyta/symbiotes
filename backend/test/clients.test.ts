@@ -25,7 +25,9 @@ describe("fetchMyTickets", () => {
       })
     );
     const tickets = await fetchMyTickets(cfg, stub as unknown as typeof fetch);
-    expect(tickets).toEqual([{ key: "RW-1", title: "Fix login", status: "In Progress" }]);
+    expect(tickets).toEqual([
+      { key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1" },
+    ]);
     const [calledUrl, calledOptions] = stub.mock.calls[0] as [string, RequestInit];
     expect(calledUrl).toMatch(/\/rest\/api\/3\/search\/jql$/);
     expect(calledOptions.method).toBe("POST");

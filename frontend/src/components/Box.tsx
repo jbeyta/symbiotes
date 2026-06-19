@@ -1,9 +1,12 @@
 import type { ReactNode } from "react";
 
-export function Box({ title, children }: { title: string; children: ReactNode }) {
+export function Box({ title, icon, children }: { title: string; icon?: ReactNode; children: ReactNode }) {
   return (
     <section className="box">
-      <h2>{title}</h2>
+      <h2>
+        {icon}
+        {title}
+      </h2>
       {children}
     </section>
   );

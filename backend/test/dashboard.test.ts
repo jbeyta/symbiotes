@@ -5,7 +5,9 @@ import { SqliteStore } from "../src/sqlite-store.js";
 import type { JiraTicket } from "../src/jira.js";
 import type { Pr } from "../src/github.js";
 
-const tickets: JiraTicket[] = [{ key: "RW-1", title: "Fix login", status: "In Progress" }];
+const tickets: JiraTicket[] = [
+  { key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1" },
+];
 const prs: Pr[] = [
   { number: 42, title: "RW-1 add login", repo: "o/r", url: "u", branch: "" },
   { number: 43, title: "chore: bump deps", repo: "o/r", url: "u2", branch: "" },
@@ -23,7 +25,7 @@ describe("GET /api/dashboard", () => {
   it("links PRs to tickets both directions", async () => {
     const res = await request(app()).get("/api/dashboard");
     expect(res.status).toBe(200);
-    expect(res.body.tickets[0]).toEqual({ key: "RW-1", title: "Fix login", status: "In Progress", pr: 42 });
+    expect(res.body.tickets[0]).toEqual({ key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1", pr: 42 });
     expect(res.body.prs.find((p: any) => p.number === 42).jiraKey).toBe("RW-1");
     expect(res.body.prs.find((p: any) => p.number === 43).jiraKey).toBeNull();
     expect(res.body.errors).toEqual({ jira: null, github: null });

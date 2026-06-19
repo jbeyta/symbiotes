@@ -1,4 +1,4 @@
-export interface JiraTicketView { key: string; title: string; status: string; pr: number | null; }
+export interface JiraTicketView { key: string; title: string; status: string; url: string; pr: number | null; }
 export interface PrView { number: number; title: string; repo: string; url: string; branch: string; jiraKey: string | null; }
 export interface DashboardResponse {
   tickets: JiraTicketView[];

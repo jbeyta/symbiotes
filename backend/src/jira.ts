@@ -4,6 +4,7 @@ export interface JiraTicket {
   key: string;
   title: string;
   status: string;
+  url: string;
 }
 
 interface JiraIssue {
@@ -36,5 +37,6 @@ export async function fetchMyTickets(
     key: i.key,
     title: i.fields.summary,
     status: i.fields.status.name,
+    url: `${cfg.jiraBaseUrl}/browse/${i.key}`,
   }));
 }

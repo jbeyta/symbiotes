@@ -2,7 +2,15 @@ import { useState } from "react";
 import { Box } from "./Box.js";
 import { TASK_STATUSES, createTask, updateTask, deleteTask, type TaskView } from "../api.js";
 
-export function TasksBox({ tasks, onChange }: { tasks: TaskView[]; onChange: () => void }) {
+export function TasksBox({
+  tasks,
+  onChange,
+  onCreateTodo,
+}: {
+  tasks: TaskView[];
+  onChange: () => void;
+  onCreateTodo: (text: string) => void;
+}) {
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState<string>(TASK_STATUSES[0]);
 
@@ -48,6 +56,9 @@ export function TasksBox({ tasks, onChange }: { tasks: TaskView[]; onChange: () 
             <select value={t.status} onChange={(e) => void setRowStatus(t.id, e.target.value)}>
               {TASK_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
+            <button className="secondary" style={{ whiteSpace: "nowrap" }} onClick={() => onCreateTodo(t.title)}>
+              Create To-Do
+            </button>
             <button className="secondary" aria-label={`Delete ${t.title}`} onClick={() => void remove(t.id)}>
               Delete
             </button>

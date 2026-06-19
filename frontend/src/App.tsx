@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getDashboard, listTasks, listTodos, type DashboardResponse, type TaskView, type TodoView } from "./api.js";
+import { getDashboard, listTasks, listTodos, createTodo, type DashboardResponse, type TaskView, type TodoView } from "./api.js";
 import { JiraBox } from "./components/JiraBox.js";
 import { PrBox } from "./components/PrBox.js";
 import { TasksBox } from "./components/TasksBox.js";
@@ -22,6 +22,10 @@ export default function App() {
 
   const loadTasks = useCallback(async () => setTasks(await listTasks()), []);
   const loadTodos = useCallback(async () => setTodos(await listTodos()), []);
+  const createTodoFromItem = useCallback(async (text: string) => {
+    await createTodo({ text });
+    await loadTodos();
+  }, [loadTodos]);
 
   useEffect(() => { void refresh(); }, [refresh]);
   useEffect(() => { void loadTasks(); }, [loadTasks]);
@@ -36,9 +40,9 @@ export default function App() {
         </button>
       </div>
       <div className="grid">
-        <JiraBox tickets={dash.tickets} error={dash.errors.jira} />
-        <PrBox prs={dash.prs} error={dash.errors.github} />
-        <TasksBox tasks={tasks} onChange={() => void loadTasks()} />
+        <JiraBox tickets={dash.tickets} error={dash.errors.jira} onCreateTodo={createTodoFromItem} />
+        <PrBox prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} />
+        <TasksBox tasks={tasks} onChange={() => void loadTasks()} onCreateTodo={createTodoFromItem} />
         <TodosBox todos={todos} onChange={() => void loadTodos()} />
       </div>
     </>
