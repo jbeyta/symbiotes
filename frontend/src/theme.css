@@ -80,6 +80,12 @@ button {
   border-radius: 6px; padding: 6px 12px; cursor: pointer;
 }
 button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: 1px solid var(--border); color: var(--muted);
+  border-radius: 6px; padding: 5px 8px; cursor: pointer;
+}
+.icon-btn:hover { color: var(--text); border-color: var(--muted); }
 input, textarea, select {
   width: 100%; background: var(--bg); color: var(--text);
   border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;

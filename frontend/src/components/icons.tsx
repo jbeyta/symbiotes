@@ -8,6 +8,14 @@ export function JiraIcon() {
   );
 }
 
+export function FilterIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false">
+      <path d="M1.5 3h13a.5.5 0 0 1 .38.82L10 9.68V13.5a.5.5 0 0 1-.72.45l-2.5-1.25A.5.5 0 0 1 6.5 12.25V9.68L1.12 3.82A.5.5 0 0 1 1.5 3Z" />
+    </svg>
+  );
+}
+
 export function GitHubIcon() {
   return (
     <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false">
