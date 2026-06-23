@@ -20,6 +20,7 @@ export interface Todo {
   text: string;
   done: boolean;
   url: string;
+  position: number;
   created_at: string;
   updated_at: string;
 }
@@ -46,4 +47,5 @@ export interface Store {
   createTodo(t: NewTodo): Todo;
   updateTodo(id: number, p: TodoPatch): Todo | null;
   deleteTodo(id: number): boolean;
+  reorderTodos(ids: number[]): void;
 }

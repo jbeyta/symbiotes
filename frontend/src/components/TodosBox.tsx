@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box } from "./Box.js";
 import { Modal } from "./Modal.js";
-import { createTodo, updateTodo, deleteTodo, type TodoView } from "../api.js";
+import { createTodo, updateTodo, deleteTodo, reorderTodos, type TodoView } from "../api.js";
 
 // Link only the leading identifier (e.g. "RW-1" or "#42"), like the Jira/PR boxes.
 function LinkedId({ text, url }: { text: string; url: string }) {
@@ -16,9 +16,24 @@ function LinkedId({ text, url }: { text: string; url: string }) {
   );
 }
 
+// Pure helper: return a copy of `arr` with the item at `from` moved to `to`.
+export function moveItem<T>(arr: T[], from: number, to: number): T[] {
+  const next = arr.slice();
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
+
 export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () => void }) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
+  // Local working order for drag feedback; kept in sync with the server list.
+  const [order, setOrder] = useState<TodoView[]>(todos);
+  const orderRef = useRef(order);
+  const dragFrom = useRef<number | null>(null);
+
+  useEffect(() => { setOrder(todos); }, [todos]);
+  useEffect(() => { orderRef.current = order; }, [order]);
 
   function close() {
     setOpen(false);
@@ -42,6 +57,19 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
     onChange();
   }
 
+  function onDragEnter(i: number) {
+    const from = dragFrom.current;
+    if (from === null || from === i) return;
+    setOrder((prev) => moveItem(prev, from, i));
+    dragFrom.current = i;
+  }
+
+  async function persistOrder() {
+    dragFrom.current = null;
+    await reorderTodos(orderRef.current.map((t) => t.id));
+    onChange();
+  }
+
   return (
     <Box title="To-Do Today" action={<button onClick={() => setOpen(true)}>Add</button>}>
       {open && (
@@ -59,9 +87,19 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
           </div>
         </Modal>
       )}
-      {todos.length === 0 && <div className="muted">Nothing to do — add something.</div>}
-      {todos.map((t) => (
-        <div className="row" key={t.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      {order.length === 0 && <div className="muted">Nothing to do — add something.</div>}
+      {order.map((t, i) => (
+        <div
+          className="row todo-row"
+          key={t.id}
+          draggable
+          onDragStart={() => { dragFrom.current = i; }}
+          onDragEnter={() => onDragEnter(i)}
+          onDragOver={(e) => e.preventDefault()}
+          onDragEnd={() => void persistOrder()}
+          style={{ display: "flex", alignItems: "center", gap: 8 }}
+        >
+          <span className="grip" aria-hidden="true" title="Drag to reorder">⠿</span>
           <input
             type="checkbox"
             checked={t.done}

@@ -14,6 +14,16 @@ export function todosRouter(store: Store): Router {
     res.status(201).json(store.createTodo({ text, url: typeof url === "string" ? url : undefined }));
   });
 
+  // Must be declared before "/:id" so "reorder" isn't matched as an id.
+  router.put("/reorder", (req, res) => {
+    const { ids } = req.body ?? {};
+    if (!Array.isArray(ids) || ids.some((n) => typeof n !== "number")) {
+      return res.status(400).json({ error: "ids must be an array of numbers" });
+    }
+    store.reorderTodos(ids);
+    res.json(store.listTodos());
+  });
+
   router.put("/:id", (req, res) => {
     const { text, done } = req.body ?? {};
     const updated = store.updateTodo(Number(req.params.id), {

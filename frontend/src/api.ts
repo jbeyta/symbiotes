@@ -36,5 +36,7 @@ export const createTodo = (b: { text: string; url?: string }) =>
 export const updateTodo = (id: number, b: Partial<{ text: string; done: boolean }>) =>
   fetch(`/api/todos/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }).then(json<TodoView>);
 export const deleteTodo = (id: number) => fetch(`/api/todos/${id}`, { method: "DELETE" });
+export const reorderTodos = (ids: number[]) =>
+  fetch("/api/todos/reorder", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) }).then(json<TodoView[]>);
 
 export const TASK_STATUSES = ["In Progress", "Responded", "Waiting on third party", "Resolved"] as const;

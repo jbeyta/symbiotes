@@ -9,6 +9,7 @@ interface TodoRow {
   text: string;
   done: number;
   url: string;
+  position: number;
   created_at: string;
   updated_at: string;
 }
@@ -34,6 +35,7 @@ CREATE TABLE IF NOT EXISTS todos (
   text        TEXT NOT NULL,
   done        INTEGER NOT NULL DEFAULT 0,
   url         TEXT NOT NULL DEFAULT '',
+  position    INTEGER NOT NULL DEFAULT 0,
   created_at  TEXT NOT NULL,
   updated_at  TEXT NOT NULL
 );
@@ -54,6 +56,11 @@ export class SqliteStore implements Store {
     const todoCols = this.db.prepare("PRAGMA table_info(todos)").all() as { name: string }[];
     if (!todoCols.some((c) => c.name === "url")) {
       this.db.exec("ALTER TABLE todos ADD COLUMN url TEXT NOT NULL DEFAULT ''");
+    }
+    if (!todoCols.some((c) => c.name === "position")) {
+      this.db.exec("ALTER TABLE todos ADD COLUMN position INTEGER NOT NULL DEFAULT 0");
+      // Seed existing rows with a stable order (by id) so they aren't all 0.
+      this.db.exec("UPDATE todos SET position = id WHERE position = 0");
     }
   }
 
@@ -122,17 +129,26 @@ export class SqliteStore implements Store {
 
   listTodos(): Todo[] {
     const rows = this.db
-      .prepare("SELECT * FROM todos ORDER BY done ASC, updated_at DESC")
+      .prepare("SELECT * FROM todos ORDER BY position ASC, id ASC")
       .all() as TodoRow[];
     return rows.map(toTodo);
   }
 
   createTodo(t: NewTodo): Todo {
     const now = this.now();
+    const pos = (this.db.prepare("SELECT COALESCE(MAX(position), 0) + 1 AS p FROM todos").get() as { p: number }).p;
     const info = this.db
-      .prepare("INSERT INTO todos (text, done, url, created_at, updated_at) VALUES (?, 0, ?, ?, ?)")
-      .run(t.text, t.url ?? "", now, now);
+      .prepare("INSERT INTO todos (text, done, url, position, created_at, updated_at) VALUES (?, 0, ?, ?, ?, ?)")
+      .run(t.text, t.url ?? "", pos, now, now);
     return this.getTodo(Number(info.lastInsertRowid))!;
+  }
+
+  reorderTodos(ids: number[]): void {
+    const update = this.db.prepare("UPDATE todos SET position = ? WHERE id = ?");
+    const tx = this.db.transaction((ordered: number[]) => {
+      ordered.forEach((id, i) => update.run(i, id));
+    });
+    tx(ids);
   }
 
   updateTodo(id: number, p: TodoPatch): Todo | null {

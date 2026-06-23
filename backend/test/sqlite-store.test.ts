@@ -61,4 +61,14 @@ describe("SqliteStore todos", () => {
     const t = store.createTodo({ text: "RW-1 Fix login", url: "https://x.atlassian.net/browse/RW-1" });
     expect(t.url).toBe("https://x.atlassian.net/browse/RW-1");
   });
+
+  it("lists in creation order and supports reordering", () => {
+    const a = store.createTodo({ text: "A" });
+    const b = store.createTodo({ text: "B" });
+    const c = store.createTodo({ text: "C" });
+    expect(store.listTodos().map((t) => t.text)).toEqual(["A", "B", "C"]);
+
+    store.reorderTodos([c.id, a.id, b.id]);
+    expect(store.listTodos().map((t) => t.text)).toEqual(["C", "A", "B"]);
+  });
 });

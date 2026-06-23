@@ -33,4 +33,17 @@ describe("todos CRUD", () => {
   it("rejects a todo without text", async () => {
     expect((await request(app()).post("/api/todos").send({})).status).toBe(400);
   });
+
+  it("reorders todos and rejects a bad payload", async () => {
+    const a = app();
+    const ids: number[] = [];
+    for (const text of ["A", "B", "C"]) {
+      ids.push((await request(a).post("/api/todos").send({ text })).body.id);
+    }
+    const reordered = await request(a).put("/api/todos/reorder").send({ ids: [ids[2], ids[0], ids[1]] });
+    expect(reordered.status).toBe(200);
+    expect(reordered.body.map((t: { text: string }) => t.text)).toEqual(["C", "A", "B"]);
+
+    expect((await request(a).put("/api/todos/reorder").send({ ids: "nope" })).status).toBe(400);
+  });
 });

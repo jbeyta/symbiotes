@@ -1,8 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { TodosBox } from "../TodosBox.js";
+import { TodosBox, moveItem } from "../TodosBox.js";
 import * as api from "../../api.js";
+
+describe("moveItem", () => {
+  it("moves an item from one index to another", () => {
+    expect(moveItem(["a", "b", "c"], 0, 2)).toEqual(["b", "c", "a"]);
+    expect(moveItem(["a", "b", "c"], 2, 0)).toEqual(["c", "a", "b"]);
+    expect(moveItem(["a", "b", "c"], 1, 1)).toEqual(["a", "b", "c"]);
+  });
+});
 
 beforeEach(() => vi.restoreAllMocks());
 
