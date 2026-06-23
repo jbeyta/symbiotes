@@ -4,7 +4,7 @@ import { Modal } from "./Modal.js";
 import { createTodo, updateTodo, deleteTodo, reorderTodos, type TodoView } from "../api.js";
 
 // Link only the leading identifier (e.g. "RW-1" or "#42"), like the Jira/PR boxes.
-function LinkedId({ text, url }: { text: string; url: string }) {
+export function LinkedId({ text, url }: { text: string; url: string }) {
   const i = text.indexOf(" ");
   const id = i === -1 ? text : text.slice(0, i);
   const rest = i === -1 ? "" : text.slice(i);

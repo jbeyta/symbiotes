@@ -6,30 +6,6 @@ beforeEach(() => {
   store = new SqliteStore(":memory:");
 });
 
-describe("SqliteStore tasks", () => {
-  it("creates with defaults and lists", () => {
-    const t = store.createTask({ title: "Follow up with vendor" });
-    expect(t.id).toBeGreaterThan(0);
-    expect(t.status).toBe("In Progress");
-    expect(t.description).toBe("");
-    expect(store.listTasks()).toHaveLength(1);
-  });
-
-  it("updates a task and bumps updated_at fields exist", () => {
-    const t = store.createTask({ title: "A", status: "Responded" });
-    const updated = store.updateTask(t.id, { status: "Resolved" });
-    expect(updated?.status).toBe("Resolved");
-    expect(store.updateTask(9999, { title: "x" })).toBeNull();
-  });
-
-  it("deletes a task", () => {
-    const t = store.createTask({ title: "A" });
-    expect(store.deleteTask(t.id)).toBe(true);
-    expect(store.deleteTask(t.id)).toBe(false);
-    expect(store.listTasks()).toHaveLength(0);
-  });
-});
-
 describe("SqliteStore notes", () => {
   it("creates, updates, deletes notes", () => {
     const n = store.createNote({ title: "Run job first thing" });
@@ -50,6 +26,9 @@ describe("SqliteStore todos", () => {
 
     const updated = store.updateTodo(t.id, { done: true });
     expect(updated?.done).toBe(true);
+    expect(updated?.completed_at).toBeTruthy();
+    // Un-checking clears the completion timestamp.
+    expect(store.updateTodo(t.id, { done: false })?.completed_at).toBeNull();
     expect(store.updateTodo(9999, { done: true })).toBeNull();
 
     expect(store.deleteTodo(t.id)).toBe(true);

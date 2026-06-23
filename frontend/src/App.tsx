@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { getDashboard, listTasks, listTodos, createTodo, type DashboardResponse, type TaskView, type TodoView } from "./api.js";
+import { getDashboard, listTodos, createTodo, type DashboardResponse, type TodoView } from "./api.js";
 import { JiraBox } from "./components/JiraBox.js";
 import { PrBox } from "./components/PrBox.js";
-import { TasksBox } from "./components/TasksBox.js";
+import { DoneLogBox } from "./components/DoneLogBox.js";
 import { TodosBox } from "./components/TodosBox.js";
 // NotesBox is kept for possible future use; swap it back into the grid to re-enable.
 
@@ -11,7 +11,6 @@ const EMPTY: DashboardResponse = { tickets: [], prs: [], errors: { jira: null, g
 export default function App() {
   const [dash, setDash] = useState<DashboardResponse>(EMPTY);
   const [loading, setLoading] = useState(false);
-  const [tasks, setTasks] = useState<TaskView[]>([]);
   const [todos, setTodos] = useState<TodoView[]>([]);
 
   const refresh = useCallback(async () => {
@@ -20,7 +19,6 @@ export default function App() {
     finally { setLoading(false); }
   }, []);
 
-  const loadTasks = useCallback(async () => setTasks(await listTasks()), []);
   const loadTodos = useCallback(async () => setTodos(await listTodos()), []);
   const createTodoFromItem = useCallback(async (text: string, url?: string) => {
     await createTodo({ text, url });
@@ -30,9 +28,9 @@ export default function App() {
   // Texts of existing to-dos, so item boxes can disable "Create To-Do" for
   // anything already added.
   const todoTexts = new Set(todos.map((t) => t.text));
+  const openTodos = todos.filter((t) => !t.done);
 
   useEffect(() => { void refresh(); }, [refresh]);
-  useEffect(() => { void loadTasks(); }, [loadTasks]);
   useEffect(() => { void loadTodos(); }, [loadTodos]);
 
   return (
@@ -52,8 +50,8 @@ export default function App() {
       <div className="grid">
         <JiraBox tickets={dash.tickets} error={dash.errors.jira} onCreateTodo={createTodoFromItem} existingTodos={todoTexts} />
         <PrBox prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} existingTodos={todoTexts} />
-        <TasksBox tasks={tasks} onChange={() => void loadTasks()} onCreateTodo={createTodoFromItem} existingTodos={todoTexts} />
-        <TodosBox todos={todos} onChange={() => void loadTodos()} />
+        <DoneLogBox todos={todos} onChange={() => void loadTodos()} />
+        <TodosBox todos={openTodos} onChange={() => void loadTodos()} />
       </div>
     </>
   );
