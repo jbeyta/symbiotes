@@ -68,7 +68,7 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
             </span>
             {t.note && (
               <button
-                className="icon-btn has-note"
+                className="icon-btn"
                 aria-label={`Show note for ${t.text}`}
                 title="Show note"
                 onClick={() => setOpenNoteId(openNoteId === t.id ? null : t.id)}

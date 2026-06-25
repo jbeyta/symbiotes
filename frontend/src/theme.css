@@ -91,7 +91,6 @@ body {
 .muted { color: var(--muted); }
 .grip { color: var(--muted); cursor: grab; user-select: none; line-height: 1; }
 .todo-line:active .grip { cursor: grabbing; }
-.icon-btn.has-note { color: var(--accent); border-color: var(--accent); }
 .note-editor { margin: 6px 0 0 26px; }
 .note-editor textarea { width: 100%; min-height: 54px; resize: vertical; font: inherit; }
 .note-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px; }

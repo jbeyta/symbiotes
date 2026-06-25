@@ -124,7 +124,7 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
               {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
             </span>
             <button
-              className={`icon-btn${t.note ? " has-note" : ""}`}
+              className="icon-btn"
               aria-label={`${t.note ? "Edit" : "Add"} note for ${t.text}`}
               title={t.note ? "Edit note" : "Add note"}
               onClick={() => toggleNote(t)}
