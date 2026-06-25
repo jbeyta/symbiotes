@@ -25,10 +25,11 @@ export default function App() {
     await loadTodos();
   }, [loadTodos]);
 
-  // Texts of existing to-dos, so item boxes can disable "Create To-Do" for
-  // anything already added.
-  const todoTexts = new Set(todos.map((t) => t.text));
+  // Only OPEN to-dos disable "Create To-Do" — once an item's to-do is marked
+  // done (it moves to the Done log), the button re-enables so you can make a
+  // fresh one (e.g. the same PR needs another round of changes).
   const openTodos = todos.filter((t) => !t.done);
+  const todoTexts = new Set(openTodos.map((t) => t.text));
 
   useEffect(() => { void refresh(); }, [refresh]);
   useEffect(() => { void loadTodos(); }, [loadTodos]);
