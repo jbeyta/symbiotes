@@ -135,7 +135,7 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
               ×
             </button>
           </div>
-          {noteEditId === t.id && (
+          {noteEditId === t.id ? (
             <div className="note-editor">
               <textarea
                 autoFocus
@@ -148,7 +148,9 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
                 <button className="icon-btn" aria-label="Cancel note" title="Cancel" onClick={() => setNoteEditId(null)}>×</button>
               </div>
             </div>
-          )}
+          ) : t.note ? (
+            <div className="note-readonly">{t.note}</div>
+          ) : null}
         </div>
       ))}
     </Box>

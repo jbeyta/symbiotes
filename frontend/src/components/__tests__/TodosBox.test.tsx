@@ -54,6 +54,17 @@ describe("TodosBox", () => {
     expect(onChange).toHaveBeenCalled();
   });
 
+  it("shows an existing note read-only, and edits it on comment-icon click", async () => {
+    const withNote = [{ ...todos[0], note: "two PRs" }];
+    render(<TodosBox todos={withNote} onChange={vi.fn()} />);
+    // View mode: note visible, no editor.
+    expect(screen.getByText("two PRs")).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("Add a note…")).not.toBeInTheDocument();
+    // Clicking the comment icon switches to edit mode.
+    await userEvent.click(screen.getByRole("button", { name: "Edit note for Deploy the thing" }));
+    expect(screen.getByPlaceholderText("Add a note…")).toHaveValue("two PRs");
+  });
+
   it("opens a note editor and saves the note", async () => {
     const onChange = vi.fn();
     const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...todos[0], note: "two PRs" });
