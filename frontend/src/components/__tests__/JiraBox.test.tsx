@@ -4,8 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { JiraBox, isDefaultVisibleStatus } from "../JiraBox.js";
 
 const tickets = [
-  { key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1", pr: null },
-  { key: "RW-2", title: "Old thing", status: "Done", url: "https://x.atlassian.net/browse/RW-2", pr: null },
+  { key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1", prs: [42, 44] },
+  { key: "RW-2", title: "Old thing", status: "Done", url: "https://x.atlassian.net/browse/RW-2", prs: [] },
 ];
 
 beforeEach(() => localStorage.clear());
@@ -60,9 +60,14 @@ describe("JiraBox", () => {
     expect(screen.getByText("Old thing")).toBeInTheDocument();
   });
 
-  it("disables Create To-Do when a matching to-do already exists", () => {
+  it("shows all matching PRs on a ticket", () => {
+    render(<JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
+    expect(screen.getByText(/PR #42, #44/)).toBeInTheDocument();
+  });
+
+  it("disables Create To-Do when an open to-do for that item's url exists", () => {
     render(
-      <JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} existingTodos={new Set(["RW-1 Fix login"])} />
+      <JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} existingUrls={new Set(["https://x.atlassian.net/browse/RW-1"])} />
     );
     expect(screen.getByRole("button", { name: "To-Do added" })).toBeDisabled();
   });

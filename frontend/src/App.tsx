@@ -27,9 +27,10 @@ export default function App() {
 
   // Only OPEN to-dos disable "Create To-Do" — once an item's to-do is marked
   // done (it moves to the Done log), the button re-enables so you can make a
-  // fresh one (e.g. the same PR needs another round of changes).
+  // fresh one (e.g. the same PR needs another round of changes). Keyed on the
+  // item's URL (stable) rather than its title (which can change upstream).
   const openTodos = todos.filter((t) => !t.done);
-  const todoTexts = new Set(openTodos.map((t) => t.text));
+  const openTodoUrls = new Set(openTodos.map((t) => t.url).filter(Boolean));
 
   useEffect(() => { void refresh(); }, [refresh]);
   useEffect(() => { void loadTodos(); }, [loadTodos]);
@@ -49,8 +50,8 @@ export default function App() {
         </button>
       </div>
       <div className="grid">
-        <JiraBox tickets={dash.tickets} error={dash.errors.jira} onCreateTodo={createTodoFromItem} existingTodos={todoTexts} />
-        <PrBox prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} existingTodos={todoTexts} />
+        <JiraBox tickets={dash.tickets} error={dash.errors.jira} onCreateTodo={createTodoFromItem} existingUrls={openTodoUrls} />
+        <PrBox prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} existingUrls={openTodoUrls} />
         <DoneLogBox todos={todos} onChange={() => void loadTodos()} />
         <TodosBox todos={openTodos} onChange={() => void loadTodos()} />
       </div>

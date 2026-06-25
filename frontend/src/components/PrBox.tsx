@@ -6,12 +6,12 @@ export function PrBox({
   prs,
   error,
   onCreateTodo,
-  existingTodos = new Set<string>(),
+  existingUrls = new Set<string>(),
 }: {
   prs: PrView[];
   error: string | null;
   onCreateTodo: (text: string, url?: string) => void;
-  existingTodos?: Set<string>;
+  existingUrls?: Set<string>;
 }) {
   return (
     <Box title="My Open PRs" icon={<GitHubIcon />}>
@@ -19,7 +19,7 @@ export function PrBox({
       {!error && prs.length === 0 && <div className="muted">No open PRs.</div>}
       {prs.map((p) => {
         const todoText = `#${p.number} ${p.title}`;
-        const added = existingTodos.has(todoText);
+        const added = existingUrls.has(p.url);
         return (
           <div className="row" key={`${p.repo}#${p.number}`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ flex: 1 }}>

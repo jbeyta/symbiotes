@@ -35,12 +35,12 @@ export function JiraBox({
   tickets,
   error,
   onCreateTodo,
-  existingTodos = new Set<string>(),
+  existingUrls = new Set<string>(),
 }: {
   tickets: JiraTicketView[];
   error: string | null;
   onCreateTodo: (text: string, url?: string) => void;
-  existingTodos?: Set<string>;
+  existingUrls?: Set<string>;
 }) {
   const [filterOpen, setFilterOpen] = useState(false);
   // Statuses currently shown, persisted in localStorage so the filter survives
@@ -90,13 +90,13 @@ export function JiraBox({
       )}
       {visible.map((t) => {
         const todoText = `${t.key} ${t.title}`;
-        const added = existingTodos.has(todoText);
+        const added = existingUrls.has(t.url);
         return (
           <div className="row" key={t.key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ flex: 1 }}>
               <a href={t.url} target="_blank" rel="noreferrer"><strong>{t.key}</strong></a> {t.title}{" "}
               <span className="muted">· {t.status}</span>
-              {t.pr != null && <span className="muted"> · PR #{t.pr}</span>}
+              {t.prs.length > 0 && <span className="muted"> · PR {t.prs.map((n) => `#${n}`).join(", ")}</span>}
             </span>
             <button
               className="secondary"

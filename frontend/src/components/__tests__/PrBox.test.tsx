@@ -23,8 +23,8 @@ describe("PrBox", () => {
     expect(onCreateTodo).toHaveBeenCalledWith("#42 add login", "https://github.com/o/r/pull/42");
   });
 
-  it("disables Create To-Do when a matching to-do already exists", () => {
-    render(<PrBox prs={prs} error={null} onCreateTodo={vi.fn()} existingTodos={new Set(["#42 add login"])} />);
+  it("disables Create To-Do when an open to-do for that PR's url exists", () => {
+    render(<PrBox prs={prs} error={null} onCreateTodo={vi.fn()} existingUrls={new Set(["https://github.com/o/r/pull/42"])} />);
     expect(screen.getByRole("button", { name: "To-Do added" })).toBeDisabled();
   });
 });

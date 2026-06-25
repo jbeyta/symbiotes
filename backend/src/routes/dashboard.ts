@@ -3,7 +3,7 @@ import type { JiraTicket } from "../jira.js";
 import type { Pr } from "../github.js";
 import { extractJiraKey } from "../links.js";
 
-export interface DashTicket extends JiraTicket { pr: number | null; }
+export interface DashTicket extends JiraTicket { prs: number[]; }
 export interface DashPr extends Pr { jiraKey: string | null; }
 export interface DashboardResponse {
   tickets: DashTicket[];
@@ -30,7 +30,7 @@ export async function buildDashboard(deps: DashboardDeps): Promise<DashboardResp
   const dashPrs: DashPr[] = prs.map((p) => ({ ...p, jiraKey: extractJiraKey(p.branch, p.title) }));
   const dashTickets: DashTicket[] = tickets.map((t) => ({
     ...t,
-    pr: dashPrs.find((p) => p.jiraKey === t.key)?.number ?? null,
+    prs: dashPrs.filter((p) => p.jiraKey === t.key).map((p) => p.number),
   }));
 
   return { tickets: dashTickets, prs: dashPrs, errors };
