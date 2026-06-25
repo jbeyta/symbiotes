@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Box } from "./Box.js";
 import { LinkedId } from "./TodosBox.js";
+import { CommentIcon } from "./icons.js";
 import { updateTodo, type TodoView } from "../api.js";
 
 // Local-timezone day key (YYYY-MM-DD) for a timestamp, so "today" matches the
@@ -35,6 +36,7 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
   }, [done]);
 
   const [selected, setSelected] = useState<string>(todayKey());
+  const [openNoteId, setOpenNoteId] = useState<number | null>(null);
   const day = dates.includes(selected) ? selected : todayKey();
   const items = done.filter((t) => dayKey(t.completed_at!) === day);
 
@@ -53,16 +55,31 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
     <Box title="Done" action={picker}>
       {items.length === 0 && <div className="muted">Nothing logged for {labelFor(day).toLowerCase()}.</div>}
       {items.map((t) => (
-        <div className="row" key={t.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <input
-            type="checkbox"
-            checked
-            aria-label={`Move ${t.text} back to to-do`}
-            onChange={() => void uncheck(t.id)}
-          />
-          <span style={{ flex: 1 }}>
-            {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
-          </span>
+        <div className="row" key={t.id}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <input
+              type="checkbox"
+              checked
+              aria-label={`Move ${t.text} back to to-do`}
+              onChange={() => void uncheck(t.id)}
+            />
+            <span style={{ flex: 1 }}>
+              {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
+            </span>
+            {t.note && (
+              <button
+                className="icon-btn has-note"
+                aria-label={`Show note for ${t.text}`}
+                title="Show note"
+                onClick={() => setOpenNoteId(openNoteId === t.id ? null : t.id)}
+              >
+                <CommentIcon />
+              </button>
+            )}
+          </div>
+          {openNoteId === t.id && t.note && (
+            <div className="note-readonly">{t.note}</div>
+          )}
         </div>
       ))}
     </Box>

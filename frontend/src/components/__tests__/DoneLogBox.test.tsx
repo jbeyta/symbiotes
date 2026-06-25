@@ -14,9 +14,9 @@ function isoDaysAgo(n: number): string {
 }
 
 const todos = [
-  { id: 1, text: "Shipped login fix", done: true, url: "", completed_at: isoToday(), created_at: "", updated_at: "" },
-  { id: 2, text: "Reviewed RW-99", done: true, url: "", completed_at: isoDaysAgo(1), created_at: "", updated_at: "" },
-  { id: 3, text: "Still open", done: false, url: "", completed_at: null, created_at: "", updated_at: "" },
+  { id: 1, text: "Shipped login fix", done: true, url: "", note: "post-release: run migration", completed_at: isoToday(), created_at: "", updated_at: "" },
+  { id: 2, text: "Reviewed RW-99", done: true, url: "", note: "", completed_at: isoDaysAgo(1), created_at: "", updated_at: "" },
+  { id: 3, text: "Still open", done: false, url: "", note: "", completed_at: null, created_at: "", updated_at: "" },
 ];
 
 describe("dayKey", () => {
@@ -38,6 +38,15 @@ describe("DoneLogBox", () => {
     await userEvent.selectOptions(screen.getByRole("combobox", { name: "Day" }), "Yesterday");
     expect(screen.getByText("Reviewed RW-99")).toBeInTheDocument();
     expect(screen.queryByText("Shipped login fix")).not.toBeInTheDocument();
+  });
+
+  it("reveals a read-only note when its comment icon is clicked", async () => {
+    render(<DoneLogBox todos={todos} onChange={vi.fn()} />);
+    expect(screen.queryByText("post-release: run migration")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Show note for Shipped login fix" }));
+    expect(screen.getByText("post-release: run migration")).toBeInTheDocument();
+    // No editor / save control in the done log (read-only).
+    expect(screen.queryByPlaceholderText("Add a note…")).not.toBeInTheDocument();
   });
 
   it("unchecking an item moves it back (calls updateTodo done:false)", async () => {

@@ -15,7 +15,7 @@ describe("moveItem", () => {
 beforeEach(() => vi.restoreAllMocks());
 
 const todos = [
-  { id: 1, text: "Deploy the thing", done: false, url: "", completed_at: null, created_at: "", updated_at: "" },
+  { id: 1, text: "Deploy the thing", done: false, url: "", note: "", completed_at: null, created_at: "", updated_at: "" },
 ];
 
 describe("TodosBox", () => {
@@ -54,8 +54,21 @@ describe("TodosBox", () => {
     expect(onChange).toHaveBeenCalled();
   });
 
+  it("opens a note editor and saves the note", async () => {
+    const onChange = vi.fn();
+    const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...todos[0], note: "two PRs" });
+    render(<TodosBox todos={todos} onChange={onChange} />);
+    // No editor until the comment button is clicked.
+    expect(screen.queryByPlaceholderText("Add a note…")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Add note for Deploy the thing" }));
+    await userEvent.type(screen.getByPlaceholderText("Add a note…"), "two PRs");
+    await userEvent.click(screen.getByRole("button", { name: "Save note" }));
+    expect(spy).toHaveBeenCalledWith(1, { note: "two PRs" });
+    expect(onChange).toHaveBeenCalled();
+  });
+
   it("links only the leading identifier when the todo has a source url", () => {
-    const linked = [{ id: 9, text: "RW-1 Fix login", done: false, url: "https://x.atlassian.net/browse/RW-1", completed_at: null, created_at: "", updated_at: "" }];
+    const linked = [{ id: 9, text: "RW-1 Fix login", done: false, url: "https://x.atlassian.net/browse/RW-1", note: "", completed_at: null, created_at: "", updated_at: "" }];
     render(<TodosBox todos={linked} onChange={vi.fn()} />);
     // The link is just "RW-1", not the whole text.
     expect(screen.getByRole("link", { name: "RW-1" })).toHaveAttribute("href", "https://x.atlassian.net/browse/RW-1");

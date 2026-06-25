@@ -41,6 +41,14 @@ describe("SqliteStore todos", () => {
     expect(t.url).toBe("https://x.atlassian.net/browse/RW-1");
   });
 
+  it("saves a note and keeps it when toggling done", () => {
+    const t = store.createTodo({ text: "RW-1" });
+    expect(t.note).toBe("");
+    expect(store.updateTodo(t.id, { note: "two PRs: #1 and #2" })?.note).toBe("two PRs: #1 and #2");
+    // Toggling done must not wipe the note.
+    expect(store.updateTodo(t.id, { done: true })?.note).toBe("two PRs: #1 and #2");
+  });
+
   it("lists in creation order and supports reordering", () => {
     const a = store.createTodo({ text: "A" });
     const b = store.createTodo({ text: "B" });

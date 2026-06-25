@@ -25,10 +25,11 @@ export function todosRouter(store: Store): Router {
   });
 
   router.put("/:id", (req, res) => {
-    const { text, done } = req.body ?? {};
+    const { text, done, note } = req.body ?? {};
     const updated = store.updateTodo(Number(req.params.id), {
       text,
       done: typeof done === "boolean" ? done : undefined,
+      note: typeof note === "string" ? note : undefined,
     });
     if (!updated) return res.status(404).json({ error: "not found" });
     res.json(updated);

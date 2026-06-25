@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Box } from "./Box.js";
 import { Modal } from "./Modal.js";
+import { CommentIcon } from "./icons.js";
 import { createTodo, updateTodo, deleteTodo, reorderTodos, type TodoView } from "../api.js";
 
 // Link only the leading identifier (e.g. "RW-1" or "#42"), like the Jira/PR boxes.
@@ -31,9 +32,22 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
   const [order, setOrder] = useState<TodoView[]>(todos);
   const orderRef = useRef(order);
   const dragFrom = useRef<number | null>(null);
+  const [noteEditId, setNoteEditId] = useState<number | null>(null);
+  const [noteDraft, setNoteDraft] = useState("");
 
   useEffect(() => { setOrder(todos); }, [todos]);
   useEffect(() => { orderRef.current = order; }, [order]);
+
+  function toggleNote(t: TodoView) {
+    if (noteEditId === t.id) { setNoteEditId(null); return; }
+    setNoteDraft(t.note ?? "");
+    setNoteEditId(t.id);
+  }
+  async function saveNote(id: number) {
+    await updateTodo(id, { note: noteDraft });
+    setNoteEditId(null);
+    onChange();
+  }
 
   function close() {
     setOpen(false);
@@ -89,29 +103,52 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
       )}
       {order.length === 0 && <div className="muted">Nothing to do — add something.</div>}
       {order.map((t, i) => (
-        <div
-          className="row todo-row"
-          key={t.id}
-          draggable
-          onDragStart={() => { dragFrom.current = i; }}
-          onDragEnter={() => onDragEnter(i)}
-          onDragOver={(e) => e.preventDefault()}
-          onDragEnd={() => void persistOrder()}
-          style={{ display: "flex", alignItems: "center", gap: 8 }}
-        >
-          <span className="grip" aria-hidden="true" title="Drag to reorder">⠿</span>
-          <input
-            type="checkbox"
-            checked={t.done}
-            aria-label={`Mark ${t.text} ${t.done ? "not done" : "done"}`}
-            onChange={() => void toggle(t.id, !t.done)}
-          />
-          <span style={{ flex: 1, textDecoration: t.done ? "line-through" : "none", color: t.done ? "var(--muted)" : "inherit" }}>
-            {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
-          </span>
-          <button className="secondary" aria-label={`Remove ${t.text}`} onClick={() => void remove(t.id)}>
-            ×
-          </button>
+        <div className="row" key={t.id}>
+          <div
+            className="todo-line"
+            draggable
+            onDragStart={() => { dragFrom.current = i; }}
+            onDragEnter={() => onDragEnter(i)}
+            onDragOver={(e) => e.preventDefault()}
+            onDragEnd={() => void persistOrder()}
+            style={{ display: "flex", alignItems: "center", gap: 8 }}
+          >
+            <span className="grip" aria-hidden="true" title="Drag to reorder">⠿</span>
+            <input
+              type="checkbox"
+              checked={t.done}
+              aria-label={`Mark ${t.text} ${t.done ? "not done" : "done"}`}
+              onChange={() => void toggle(t.id, !t.done)}
+            />
+            <span style={{ flex: 1, textDecoration: t.done ? "line-through" : "none", color: t.done ? "var(--muted)" : "inherit" }}>
+              {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
+            </span>
+            <button
+              className={`icon-btn${t.note ? " has-note" : ""}`}
+              aria-label={`${t.note ? "Edit" : "Add"} note for ${t.text}`}
+              title={t.note ? "Edit note" : "Add note"}
+              onClick={() => toggleNote(t)}
+            >
+              <CommentIcon />
+            </button>
+            <button className="secondary" aria-label={`Remove ${t.text}`} onClick={() => void remove(t.id)}>
+              ×
+            </button>
+          </div>
+          {noteEditId === t.id && (
+            <div className="note-editor">
+              <textarea
+                autoFocus
+                placeholder="Add a note…"
+                value={noteDraft}
+                onChange={(e) => setNoteDraft(e.target.value)}
+              />
+              <div className="note-actions">
+                <button className="icon-btn" aria-label="Save note" title="Save" onClick={() => void saveNote(t.id)}>✓</button>
+                <button className="icon-btn" aria-label="Cancel note" title="Cancel" onClick={() => setNoteEditId(null)}>×</button>
+              </div>
+            </div>
+          )}
         </div>
       ))}
     </Box>

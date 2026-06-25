@@ -9,6 +9,7 @@ interface TodoRow {
   text: string;
   done: number;
   url: string;
+  note: string;
   position: number;
   completed_at: string | null;
   created_at: string;
@@ -28,6 +29,7 @@ CREATE TABLE IF NOT EXISTS todos (
   text         TEXT NOT NULL,
   done         INTEGER NOT NULL DEFAULT 0,
   url          TEXT NOT NULL DEFAULT '',
+  note         TEXT NOT NULL DEFAULT '',
   position     INTEGER NOT NULL DEFAULT 0,
   completed_at TEXT,
   created_at   TEXT NOT NULL,
@@ -60,6 +62,9 @@ export class SqliteStore implements Store {
       this.db.exec("ALTER TABLE todos ADD COLUMN completed_at TEXT");
       // Best-effort backfill: already-done items get their last-updated time.
       this.db.exec("UPDATE todos SET completed_at = updated_at WHERE done = 1 AND completed_at IS NULL");
+    }
+    if (!todoCols.some((c) => c.name === "note")) {
+      this.db.exec("ALTER TABLE todos ADD COLUMN note TEXT NOT NULL DEFAULT ''");
     }
   }
 
@@ -127,8 +132,8 @@ export class SqliteStore implements Store {
     if (nextDone && !existing.done) completedAt = this.now();
     else if (!nextDone) completedAt = null;
     this.db
-      .prepare("UPDATE todos SET text=?, done=?, completed_at=?, updated_at=? WHERE id=?")
-      .run(p.text ?? existing.text, nextDone ? 1 : 0, completedAt, this.now(), id);
+      .prepare("UPDATE todos SET text=?, done=?, note=?, completed_at=?, updated_at=? WHERE id=?")
+      .run(p.text ?? existing.text, nextDone ? 1 : 0, p.note ?? existing.note, completedAt, this.now(), id);
     return this.getTodo(id);
   }
 

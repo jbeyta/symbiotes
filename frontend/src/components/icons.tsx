@@ -16,6 +16,14 @@ export function FilterIcon() {
   );
 }
 
+export function CommentIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false">
+      <path d="M2 2h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6l-3.3 2.6A.5.5 0 0 1 2 14.2V12a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Z" />
+    </svg>
+  );
+}
+
 export function GitHubIcon() {
   return (
     <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false">
