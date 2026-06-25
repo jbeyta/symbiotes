@@ -23,6 +23,17 @@ describe("PrBox", () => {
     expect(onCreateTodo).toHaveBeenCalledWith("#42 add login", "https://github.com/o/r/pull/42");
   });
 
+  it("filters rows by the search box", async () => {
+    const many = [
+      ...prs,
+      { number: 99, title: "bump deps", repo: "o/r", url: "https://github.com/o/r/pull/99", branch: "", jiraKey: null },
+    ];
+    render(<PrBox prs={many} error={null} onCreateTodo={vi.fn()} />);
+    await userEvent.type(screen.getByRole("searchbox", { name: "Search PRs" }), "deps");
+    expect(screen.getByText("bump deps")).toBeInTheDocument();
+    expect(screen.queryByText("add login")).not.toBeInTheDocument();
+  });
+
   it("disables Create To-Do when an open to-do for that PR's url exists", () => {
     render(<PrBox prs={prs} error={null} onCreateTodo={vi.fn()} existingUrls={new Set(["https://github.com/o/r/pull/42"])} />);
     expect(screen.getByRole("button", { name: "To-Do added" })).toBeDisabled();

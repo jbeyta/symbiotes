@@ -116,6 +116,7 @@ input, textarea, select {
   border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;
 }
 input[type="checkbox"] { width: auto; flex: none; cursor: pointer; }
+.search { width: 140px; padding: 4px 8px; font-size: 13px; }
 a { color: var(--accent); }
 .error { color: #ff6b6b; }
 

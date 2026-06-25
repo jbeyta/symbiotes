@@ -60,6 +60,18 @@ describe("JiraBox", () => {
     expect(screen.getByText("Old thing")).toBeInTheDocument();
   });
 
+  it("filters rows by the search box", async () => {
+    render(<JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
+    // Reveal both tickets first so search isn't masked by the status filter.
+    await userEvent.click(screen.getByRole("button", { name: "Filter by status" }));
+    await userEvent.click(screen.getByRole("checkbox", { name: "Done" }));
+    await userEvent.click(screen.getByRole("button", { name: "Done" })); // close modal
+
+    await userEvent.type(screen.getByRole("searchbox", { name: "Search tickets" }), "old");
+    expect(screen.getByText("Old thing")).toBeInTheDocument();
+    expect(screen.queryByText("Fix login")).not.toBeInTheDocument();
+  });
+
   it("shows all matching PRs on a ticket", () => {
     render(<JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
     expect(screen.getByText(/PR #42, #44/)).toBeInTheDocument();

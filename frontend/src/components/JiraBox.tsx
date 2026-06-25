@@ -43,6 +43,7 @@ export function JiraBox({
   existingUrls?: Set<string>;
 }) {
   const [filterOpen, setFilterOpen] = useState(false);
+  const [query, setQuery] = useState("");
   // Statuses currently shown, persisted in localStorage so the filter survives
   // full reloads. `known` tracks statuses already seen, so defaults are applied
   // only the first time a status appears — a status you unchecked stays unchecked.
@@ -65,6 +66,10 @@ export function JiraBox({
 
   const allStatuses = [...new Set(tickets.map((t) => t.status))].sort();
   const visible = tickets.filter((t) => selected.has(t.status));
+  const q = query.trim().toLowerCase();
+  const shown = q
+    ? visible.filter((t) => `${t.key} ${t.title} ${t.status}`.toLowerCase().includes(q))
+    : visible;
 
   function toggleStatus(s: string) {
     setSelected((prev) => {
@@ -75,20 +80,33 @@ export function JiraBox({
     });
   }
 
-  const filterButton = (
-    <button className="icon-btn" aria-label="Filter by status" onClick={() => setFilterOpen(true)}>
-      <FilterIcon />
-    </button>
+  const headerActions = (
+    <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
+      <input
+        className="search"
+        type="search"
+        placeholder="Search…"
+        aria-label="Search tickets"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+      <button className="icon-btn" aria-label="Filter by status" onClick={() => setFilterOpen(true)}>
+        <FilterIcon />
+      </button>
+    </span>
   );
 
   return (
-    <Box title="My Jira Tickets" icon={<JiraIcon />} action={filterButton}>
+    <Box title="My Jira Tickets" icon={<JiraIcon />} action={headerActions}>
       {error && <div className="error row">Jira error: {error}</div>}
       {!error && tickets.length === 0 && <div className="muted">No assigned tickets.</div>}
-      {!error && tickets.length > 0 && visible.length === 0 && (
+      {!error && visible.length === 0 && tickets.length > 0 && (
         <div className="muted">No tickets match the status filter.</div>
       )}
-      {visible.map((t) => {
+      {!error && visible.length > 0 && shown.length === 0 && (
+        <div className="muted">No tickets match the search.</div>
+      )}
+      {shown.map((t) => {
         const todoText = `${t.key} ${t.title}`;
         const added = existingUrls.has(t.url);
         return (
