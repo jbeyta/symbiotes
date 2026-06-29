@@ -41,6 +41,14 @@ describe("SqliteStore todos", () => {
     expect(t.url).toBe("https://x.atlassian.net/browse/RW-1");
   });
 
+  it("moves a completed item to another day via completed_at", () => {
+    const t = store.createTodo({ text: "RW-1" });
+    store.updateTodo(t.id, { done: true });
+    const moved = store.updateTodo(t.id, { completed_at: "2026-06-23T12:00:00" });
+    expect(moved?.completed_at).toBe("2026-06-23T12:00:00");
+    expect(moved?.done).toBe(true);
+  });
+
   it("saves a note and keeps it when toggling done", () => {
     const t = store.createTodo({ text: "RW-1" });
     expect(t.note).toBe("");

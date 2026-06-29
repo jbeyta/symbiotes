@@ -21,7 +21,7 @@ export interface Todo {
 export interface NewNote { title: string; description?: string; }
 export interface NotePatch { title?: string; description?: string; }
 export interface NewTodo { text: string; url?: string; }
-export interface TodoPatch { text?: string; done?: boolean; note?: string; }
+export interface TodoPatch { text?: string; done?: boolean; note?: string; completed_at?: string; }
 
 export interface Store {
   listNotes(): Note[];

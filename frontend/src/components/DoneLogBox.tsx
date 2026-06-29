@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { Box } from "./Box.js";
+import { Modal } from "./Modal.js";
 import { LinkedId } from "./TodosBox.js";
-import { CommentIcon } from "./icons.js";
+import { CommentIcon, ClockIcon } from "./icons.js";
 import { updateTodo, type TodoView } from "../api.js";
 
 // Local-timezone day key (YYYY-MM-DD) for a timestamp, so "today" matches the
@@ -37,11 +38,19 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
 
   const [selected, setSelected] = useState<string>(todayKey());
   const [openNoteId, setOpenNoteId] = useState<number | null>(null);
+  const [moveId, setMoveId] = useState<number | null>(null);
   const day = dates.includes(selected) ? selected : todayKey();
   const items = done.filter((t) => dayKey(t.completed_at!) === day);
 
   async function uncheck(id: number) {
     await updateTodo(id, { done: false });
+    onChange();
+  }
+
+  async function moveTo(id: number, dateK: string) {
+    // Noon on the target local day, so the day-key lands on that date.
+    await updateTodo(id, { completed_at: `${dateK}T12:00:00` });
+    setMoveId(null);
     onChange();
   }
 
@@ -76,12 +85,38 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
                 <CommentIcon />
               </button>
             )}
+            <button
+              className="icon-btn"
+              aria-label={`Move ${t.text} to another day`}
+              title="Move to another day"
+              onClick={() => setMoveId(t.id)}
+            >
+              <ClockIcon />
+            </button>
           </div>
           {openNoteId === t.id && t.note && (
             <div className="note-readonly">{t.note}</div>
           )}
         </div>
       ))}
+
+      {moveId !== null && (
+        <Modal title="Move to day" onClose={() => setMoveId(null)}>
+          {dates.filter((k) => k !== day).length === 0 && (
+            <div className="muted">No other days available yet.</div>
+          )}
+          {dates.filter((k) => k !== day).map((k) => (
+            <button
+              key={k}
+              className="secondary row"
+              style={{ display: "block", width: "100%", textAlign: "left" }}
+              onClick={() => void moveTo(moveId, k)}
+            >
+              {labelFor(k)}
+            </button>
+          ))}
+        </Modal>
+      )}
     </Box>
   );
 }

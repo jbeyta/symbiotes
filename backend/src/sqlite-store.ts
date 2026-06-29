@@ -131,6 +131,8 @@ export class SqliteStore implements Store {
     let completedAt = existing.completed_at;
     if (nextDone && !existing.done) completedAt = this.now();
     else if (!nextDone) completedAt = null;
+    // Explicit completed_at (e.g. moving a done item to another day) wins.
+    if (p.completed_at !== undefined) completedAt = p.completed_at;
     this.db
       .prepare("UPDATE todos SET text=?, done=?, note=?, completed_at=?, updated_at=? WHERE id=?")
       .run(p.text ?? existing.text, nextDone ? 1 : 0, p.note ?? existing.note, completedAt, this.now(), id);

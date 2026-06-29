@@ -4,6 +4,12 @@ import userEvent from "@testing-library/user-event";
 import { DoneLogBox, dayKey } from "../DoneLogBox.js";
 import * as api from "../../api.js";
 
+function yKey(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return dayKey(d.toISOString());
+}
+
 function isoToday(): string {
   return new Date().toISOString();
 }
@@ -47,6 +53,18 @@ describe("DoneLogBox", () => {
     expect(screen.getByText("post-release: run migration")).toBeInTheDocument();
     // No editor / save control in the done log (read-only).
     expect(screen.queryByPlaceholderText("Add a note…")).not.toBeInTheDocument();
+  });
+
+  it("moves a done item to another available day", async () => {
+    const onChange = vi.fn();
+    const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...todos[0] });
+    render(<DoneLogBox todos={todos} onChange={onChange} />);
+    // Default day is today, showing "Shipped login fix".
+    await userEvent.click(screen.getByRole("button", { name: "Move Shipped login fix to another day" }));
+    // The only other available day is yesterday.
+    await userEvent.click(screen.getByRole("button", { name: "Yesterday" }));
+    expect(spy).toHaveBeenCalledWith(1, { completed_at: `${yKey()}T12:00:00` });
+    expect(onChange).toHaveBeenCalled();
   });
 
   it("unchecking an item moves it back (calls updateTodo done:false)", async () => {
