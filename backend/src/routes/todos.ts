@@ -1,6 +1,17 @@
 import { Router } from "express";
 import type { Store } from "../store.js";
 
+// Lightweight activity log to the server console (the `npm run dev` terminal).
+function log(action: string, detail: string) {
+  console.log(`[todo] ${new Date().toISOString()} ${action} ${detail}`);
+}
+// Local day (YYYY-MM-DD) for a timestamp — mirrors the frontend's Done-log grouping.
+function localDay(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export function todosRouter(store: Store): Router {
   const router = Router();
 
@@ -11,7 +22,9 @@ export function todosRouter(store: Store): Router {
     if (!text || typeof text !== "string") {
       return res.status(400).json({ error: "text is required" });
     }
-    res.status(201).json(store.createTodo({ text, url: typeof url === "string" ? url : undefined }));
+    const created = store.createTodo({ text, url: typeof url === "string" ? url : undefined });
+    log("created", `#${created.id} ${JSON.stringify(created.text)}`);
+    res.status(201).json(created);
   });
 
   // Must be declared before "/:id" so "reorder" isn't matched as an id.
@@ -21,6 +34,7 @@ export function todosRouter(store: Store): Router {
       return res.status(400).json({ error: "ids must be an array of numbers" });
     }
     store.reorderTodos(ids);
+    log("reordered", `${ids.length} items`);
     res.json(store.listTodos());
   });
 
@@ -33,11 +47,18 @@ export function todosRouter(store: Store): Router {
       completed_at: typeof completed_at === "string" ? completed_at : undefined,
     });
     if (!updated) return res.status(404).json({ error: "not found" });
+    const tag = `#${updated.id} ${JSON.stringify(updated.text)}`;
+    if (done === true) log("done", `${tag} completed_at=${updated.completed_at} (local day ${localDay(updated.completed_at)})`);
+    else if (done === false) log("reopened", tag);
+    if (typeof completed_at === "string") log("moved", `${tag} -> ${updated.completed_at} (local day ${localDay(updated.completed_at)})`);
+    if (typeof note === "string") log("note", `${tag} (${note.length} chars)`);
+    if (typeof text === "string" && done === undefined && note === undefined && completed_at === undefined) log("renamed", tag);
     res.json(updated);
   });
 
   router.delete("/:id", (req, res) => {
     if (!store.deleteTodo(Number(req.params.id))) return res.status(404).end();
+    log("deleted", `#${req.params.id}`);
     res.status(204).end();
   });
 
