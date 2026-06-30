@@ -37,13 +37,25 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
   }, [done]);
 
   const [selected, setSelected] = useState<string>(todayKey());
-  const [openNoteId, setOpenNoteId] = useState<number | null>(null);
+  const [noteEditId, setNoteEditId] = useState<number | null>(null);
+  const [noteDraft, setNoteDraft] = useState("");
   const [moveId, setMoveId] = useState<number | null>(null);
   const day = dates.includes(selected) ? selected : todayKey();
   const items = done.filter((t) => dayKey(t.completed_at!) === day);
 
   async function uncheck(id: number) {
     await updateTodo(id, { done: false });
+    onChange();
+  }
+
+  function toggleNote(t: TodoView) {
+    if (noteEditId === t.id) { setNoteEditId(null); return; }
+    setNoteDraft(t.note ?? "");
+    setNoteEditId(t.id);
+  }
+  async function saveNote(id: number) {
+    await updateTodo(id, { note: noteDraft });
+    setNoteEditId(null);
     onChange();
   }
 
@@ -75,16 +87,14 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
             <span style={{ flex: 1 }}>
               {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
             </span>
-            {t.note && (
-              <button
-                className="icon-btn"
-                aria-label={`Show note for ${t.text}`}
-                title="Show note"
-                onClick={() => setOpenNoteId(openNoteId === t.id ? null : t.id)}
-              >
-                <CommentIcon />
-              </button>
-            )}
+            <button
+              className="icon-btn"
+              aria-label={`${t.note ? "Edit" : "Add"} note for ${t.text}`}
+              title={t.note ? "Edit note" : "Add note"}
+              onClick={() => toggleNote(t)}
+            >
+              <CommentIcon />
+            </button>
             <button
               className="icon-btn"
               aria-label={`Move ${t.text} to another day`}
@@ -94,9 +104,22 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
               <ClockIcon />
             </button>
           </div>
-          {openNoteId === t.id && t.note && (
+          {noteEditId === t.id ? (
+            <div className="note-editor">
+              <textarea
+                autoFocus
+                placeholder="Add a note…"
+                value={noteDraft}
+                onChange={(e) => setNoteDraft(e.target.value)}
+              />
+              <div className="note-actions">
+                <button className="icon-btn" aria-label="Save note" title="Save" onClick={() => void saveNote(t.id)}>✓</button>
+                <button className="icon-btn" aria-label="Cancel note" title="Cancel" onClick={() => setNoteEditId(null)}>×</button>
+              </div>
+            </div>
+          ) : t.note ? (
             <div className="note-readonly">{t.note}</div>
-          )}
+          ) : null}
         </div>
       ))}
 

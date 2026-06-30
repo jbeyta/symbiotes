@@ -46,13 +46,27 @@ describe("DoneLogBox", () => {
     expect(screen.queryByText("Shipped login fix")).not.toBeInTheDocument();
   });
 
-  it("reveals a read-only note when its comment icon is clicked", async () => {
+  it("shows a note read-only and opens an editor on comment-icon click", async () => {
     render(<DoneLogBox todos={todos} onChange={vi.fn()} />);
-    expect(screen.queryByText("post-release: run migration")).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Show note for Shipped login fix" }));
+    // Read-only note visible by default (no editor).
     expect(screen.getByText("post-release: run migration")).toBeInTheDocument();
-    // No editor / save control in the done log (read-only).
     expect(screen.queryByPlaceholderText("Add a note…")).not.toBeInTheDocument();
+    // Comment icon opens an editor pre-filled with the note.
+    await userEvent.click(screen.getByRole("button", { name: "Edit note for Shipped login fix" }));
+    expect(screen.getByPlaceholderText("Add a note…")).toHaveValue("post-release: run migration");
+  });
+
+  it("edits and saves a note on a done item", async () => {
+    const onChange = vi.fn();
+    const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...todos[0] });
+    render(<DoneLogBox todos={todos} onChange={onChange} />);
+    await userEvent.click(screen.getByRole("button", { name: "Edit note for Shipped login fix" }));
+    const ta = screen.getByPlaceholderText("Add a note…");
+    await userEvent.clear(ta);
+    await userEvent.type(ta, "updated note");
+    await userEvent.click(screen.getByRole("button", { name: "Save note" }));
+    expect(spy).toHaveBeenCalledWith(1, { note: "updated note" });
+    expect(onChange).toHaveBeenCalled();
   });
 
   it("moves a done item to another available day", async () => {
