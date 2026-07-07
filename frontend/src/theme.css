@@ -142,8 +142,11 @@ input, textarea, select {
 }
 input:not([type="checkbox"]), select { height: var(--control-h); padding: 0 8px; }
 textarea { padding: 6px 8px; }
-/* Checkbox styled after alddesign/cyberpunk-css (.cyber-check): a bordered square
-   whose inner square scales in when checked. Adapted to the terminal palette. */
+/* Checkbox styled after the cyberpunk-css library's .cyber-check: a bordered
+   square whose inner square scales in when checked. Adapted to our terminal
+   palette (green on black, square corners).
+   Source: https://github.com/alddesign/cyberpunk-css  (demo: https://alddesign.github.io/cyberpunk-css/demo/)
+   Good reference if we want more cyberpunk-styled elements later. */
 input[type="checkbox"] {
   -webkit-appearance: none; appearance: none;
   flex: none; margin: 0; cursor: pointer;
