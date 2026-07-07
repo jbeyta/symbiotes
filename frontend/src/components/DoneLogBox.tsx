@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Box } from "./Box.js";
 import { Modal } from "./Modal.js";
+import { Calendar } from "./Calendar.js";
 import { LinkedId } from "./TodosBox.js";
 import { CommentIcon, ClockIcon } from "./icons.js";
 import { updateTodo, type TodoView } from "../api.js";
@@ -125,16 +126,7 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
 
       {moveId !== null && (
         <Modal title="Move to day" onClose={() => setMoveId(null)}>
-          <label className="muted" style={{ display: "block", marginBottom: 8 }}>Pick the day this was done:</label>
-          <input
-            type="date"
-            aria-label="Move to date"
-            autoFocus
-            defaultValue={day}
-            max={todayKey()}
-            style={{ width: "auto" }}
-            onChange={(e) => { if (e.target.value) void moveTo(moveId, e.target.value); }}
-          />
+          <Calendar initial={day} max={todayKey()} onPick={(k) => void moveTo(moveId, k)} />
         </Modal>
       )}
     </Box>

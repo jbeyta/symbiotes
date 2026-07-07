@@ -1,14 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DoneLogBox, dayKey } from "../DoneLogBox.js";
 import * as api from "../../api.js";
-
-function yKey(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return dayKey(d.toISOString());
-}
 
 function isoToday(): string {
   return new Date().toISOString();
@@ -69,15 +63,15 @@ describe("DoneLogBox", () => {
     expect(onChange).toHaveBeenCalled();
   });
 
-  it("moves a done item to any chosen calendar date", async () => {
+  it("moves a done item to a day picked on the calendar", async () => {
     const onChange = vi.fn();
     const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...todos[0] });
     render(<DoneLogBox todos={todos} onChange={onChange} />);
-    // Default day is today, showing "Shipped login fix".
     await userEvent.click(screen.getByRole("button", { name: "Move Shipped login fix to another day" }));
-    // Pick an arbitrary date (even one with no existing items).
-    fireEvent.change(screen.getByLabelText("Move to date"), { target: { value: yKey() } });
-    expect(spy).toHaveBeenCalledWith(1, { completed_at: `${yKey()}T12:00:00` });
+    // Calendar opens on the current month; day 1 is always available (<= today).
+    await userEvent.click(screen.getByRole("button", { name: "1" }));
+    const firstOfMonth = `${dayKey(new Date().toISOString()).slice(0, 7)}-01`;
+    expect(spy).toHaveBeenCalledWith(1, { completed_at: `${firstOfMonth}T12:00:00` });
     await waitFor(() => expect(onChange).toHaveBeenCalled());
   });
 

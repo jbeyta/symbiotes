@@ -85,6 +85,15 @@ body {
 }
 .modal-title { margin: 0 0 14px; font-size: 15px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-wd { text-align: center; font-size: 11px; color: var(--muted); padding: 2px 0; }
+.cal-day {
+  background: transparent; border: 1px solid var(--border); color: var(--text);
+  border-radius: 6px; padding: 6px 0; cursor: pointer; font-size: 13px;
+}
+.cal-day:hover:not(:disabled) { border-color: var(--purple); }
+.cal-day:disabled { opacity: 0.3; cursor: default; }
 /* Row spacing rule: 1rem below each row, none on the last. */
 .row { margin-bottom: 1rem; }
 .row:last-child { margin-bottom: 0; }
