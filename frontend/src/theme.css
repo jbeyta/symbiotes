@@ -71,8 +71,9 @@ body {
   align-items: center;
   gap: 8px;
   margin: 0 -16px 12px;   /* span to the box's inner edges */
-  padding: 16px;          /* the box's top padding lives here */
+  padding: 16px 16px 12px; /* the box's top padding lives here */
   background: var(--panel);
+  border-bottom: 1px dotted var(--green);
   font-size: 15px;
 }
 .box h2 svg { flex: none; color: var(--green); }
