@@ -142,7 +142,23 @@ input, textarea, select {
 }
 input:not([type="checkbox"]), select { height: var(--control-h); padding: 0 8px; }
 textarea { padding: 6px 8px; }
-input[type="checkbox"] { width: auto; flex: none; cursor: pointer; accent-color: var(--green); }
+/* Checkbox styled after alddesign/cyberpunk-css (.cyber-check): a bordered square
+   whose inner square scales in when checked. Adapted to the terminal palette. */
+input[type="checkbox"] {
+  -webkit-appearance: none; appearance: none;
+  flex: none; margin: 0; cursor: pointer;
+  width: 18px; height: 18px;
+  background: #000; border: 1px solid var(--green); border-radius: 0;
+  display: inline-grid; place-content: center;
+}
+input[type="checkbox"]::before {
+  content: "";
+  width: 10px; height: 10px;
+  background: var(--green);
+  transform: scale(0);
+  transition: transform 120ms ease-in-out;
+}
+input[type="checkbox"]:checked::before { transform: scale(1); }
 .search { width: 140px; font-size: 13px; }
 a { color: var(--accent); }
 .error { color: #ff6b6b; }
