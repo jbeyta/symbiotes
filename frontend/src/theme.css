@@ -20,7 +20,7 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 8px;
+  border-radius: 0;
   border: 2px solid var(--panel);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
@@ -70,8 +70,9 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 54px;           /* fixed, so every box header is the same height */
   margin: 0 -16px 12px;   /* span to the box's inner edges */
-  padding: 16px 16px 12px; /* the box's top padding lives here */
+  padding: 0 16px;        /* content vertically centered within the fixed height */
   /* Panel fill plus a custom dashed underline (4px dash, 2px gap) drawn as a
      1px-tall repeating gradient pinned to the bottom edge. */
   background-color: var(--panel);
@@ -91,7 +92,7 @@ body {
 }
 .modal {
   background: var(--panel); border: 1px solid var(--border);
-  border-radius: 10px; padding: 20px;
+  border-radius: 0; padding: 20px;
   width: 340px; max-width: calc(100vw - 32px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
@@ -102,7 +103,7 @@ body {
 .cal-wd { text-align: center; font-size: 11px; color: var(--muted); padding: 2px 0; }
 .cal-day {
   background: #000; border: 1px solid var(--green); color: var(--green);
-  border-radius: 6px; padding: 6px 0; cursor: pointer; font-size: 13px;
+  border-radius: 0; padding: 6px 0; cursor: pointer; font-size: 13px;
 }
 .cal-day:hover:not(:disabled) { background: var(--green); color: #000; }
 .cal-day:disabled { opacity: 0.3; cursor: default; }
@@ -117,13 +118,13 @@ body {
 .note-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px; }
 .note-readonly {
   margin: 6px 0 0 26px; padding: 8px 10px;
-  background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 0;
   color: var(--muted); white-space: pre-wrap;
 }
 /* Terminal buttons: green on black with a green outline; invert on hover. */
 button, button.secondary, .icon-btn {
   background: #000; color: var(--green); border: 1px solid var(--green);
-  border-radius: 6px; cursor: pointer; font: inherit;
+  border-radius: 0; cursor: pointer; font: inherit;
 }
 button, button.secondary { padding: 6px 12px; }
 button:hover:not(:disabled),
@@ -136,7 +137,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 input, textarea, select {
   width: 100%; background: var(--bg); color: var(--text);
-  border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;
+  border: 1px solid var(--border); border-radius: 0; padding: 6px 8px;
 }
 input[type="checkbox"] { width: auto; flex: none; cursor: pointer; accent-color: var(--green); }
 .search { width: 140px; padding: 4px 8px; font-size: 13px; }
