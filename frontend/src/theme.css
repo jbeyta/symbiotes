@@ -1,12 +1,16 @@
 :root {
+  /* Single source of truth for the terminal green — change this one line to
+     recolor links, borders, icons, and accents across the whole app. */
+  --green: #33ff66;
+
   --bg: #0f1115;
   --panel: #171a21;
-  --panel-75: rgba(23, 26, 33, 0.75); /* --panel at 0.75 alpha, so blobs show through */
-  --border: #262b36;
+  --panel-75: rgba(23, 26, 33, 0.75);
+  --border: var(--green);   /* all borders/lines use the terminal green */
   --text: #e6e8ec;
   --muted: #9aa3b2;
-  --accent: #5b9dff;
-  --purple: #7b27cf; /* dark purple, matches the background blobs */
+  --accent: var(--green);   /* links use the terminal green */
+  --purple: #7b27cf;        /* kept for the (now-hidden) background blobs */
   /* Render native UI (incl. scrollbars) dark. */
   color-scheme: dark;
 }
@@ -26,7 +30,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font: 14px/1.5 ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 /* App fills the viewport: fixed topbar, grid takes the rest. */
 #root {
@@ -69,7 +73,7 @@ body {
   background: var(--panel);
   font-size: 15px;
 }
-.box h2 svg { flex: none; }
+.box h2 svg { flex: none; color: var(--green); }
 
 /* Creation modal */
 .modal-backdrop {
@@ -89,10 +93,10 @@ body {
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .cal-wd { text-align: center; font-size: 11px; color: var(--muted); padding: 2px 0; }
 .cal-day {
-  background: transparent; border: 1px solid var(--border); color: var(--text);
+  background: #000; border: 1px solid var(--green); color: var(--green);
   border-radius: 6px; padding: 6px 0; cursor: pointer; font-size: 13px;
 }
-.cal-day:hover:not(:disabled) { border-color: var(--purple); }
+.cal-day:hover:not(:disabled) { background: var(--green); color: #000; }
 .cal-day:disabled { opacity: 0.3; cursor: default; }
 /* Row spacing rule: 1rem below each row, none on the last. */
 .row { margin-bottom: 1rem; }
@@ -108,29 +112,33 @@ body {
   background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
   color: var(--muted); white-space: pre-wrap;
 }
-button {
-  background: var(--purple); color: #fff; border: 0;
-  border-radius: 6px; padding: 6px 12px; cursor: pointer;
+/* Terminal buttons: green on black with a green outline; invert on hover. */
+button, button.secondary, .icon-btn {
+  background: #000; color: var(--green); border: 1px solid var(--green);
+  border-radius: 6px; cursor: pointer; font: inherit;
 }
-button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
-button:disabled { opacity: 0.45; cursor: not-allowed; }
+button, button.secondary { padding: 6px 12px; }
+button:hover:not(:disabled),
+button.secondary:hover:not(:disabled),
+.icon-btn:hover:not(:disabled) { background: var(--green); color: #000; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
 .icon-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  background: transparent; border: 1px solid var(--border); color: var(--muted);
-  border-radius: 6px; padding: 5px 8px; cursor: pointer;
+  padding: 5px 8px;
 }
-.icon-btn:hover { color: var(--text); border-color: var(--muted); }
 input, textarea, select {
   width: 100%; background: var(--bg); color: var(--text);
   border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px;
 }
-input[type="checkbox"] { width: auto; flex: none; cursor: pointer; }
+input[type="checkbox"] { width: auto; flex: none; cursor: pointer; accent-color: var(--green); }
 .search { width: 140px; padding: 4px 8px; font-size: 13px; }
 a { color: var(--accent); }
 .error { color: #ff6b6b; }
 
-/* Animated gradient blobs behind the dashboard (black / dark purple / dark blue). */
+/* Animated gradient blobs behind the dashboard (black / dark purple / dark blue).
+   Hidden for now — remove this `display: none` to bring the effect back. */
 .bg-blobs {
+  display: none;
   position: fixed; inset: 0; z-index: -1; overflow: hidden;
   background: #08070d;
 }
