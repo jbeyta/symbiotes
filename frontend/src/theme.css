@@ -72,8 +72,13 @@ body {
   gap: 8px;
   margin: 0 -16px 12px;   /* span to the box's inner edges */
   padding: 16px 16px 12px; /* the box's top padding lives here */
-  background: var(--panel);
-  border-bottom: 1px dotted var(--green);
+  /* Panel fill plus a custom dashed underline (4px dash, 2px gap) drawn as a
+     1px-tall repeating gradient pinned to the bottom edge. */
+  background-color: var(--panel);
+  background-image: repeating-linear-gradient(to right, var(--green) 0 4px, transparent 4px 6px);
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 100% 1px;
   font-size: 15px;
 }
 .box h2 svg { flex: none; color: var(--green); }
