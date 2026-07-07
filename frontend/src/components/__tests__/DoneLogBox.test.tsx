@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DoneLogBox, dayKey } from "../DoneLogBox.js";
 import * as api from "../../api.js";
@@ -69,16 +69,16 @@ describe("DoneLogBox", () => {
     expect(onChange).toHaveBeenCalled();
   });
 
-  it("moves a done item to another available day", async () => {
+  it("moves a done item to any chosen calendar date", async () => {
     const onChange = vi.fn();
     const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...todos[0] });
     render(<DoneLogBox todos={todos} onChange={onChange} />);
     // Default day is today, showing "Shipped login fix".
     await userEvent.click(screen.getByRole("button", { name: "Move Shipped login fix to another day" }));
-    // The only other available day is yesterday.
-    await userEvent.click(screen.getByRole("button", { name: "Yesterday" }));
+    // Pick an arbitrary date (even one with no existing items).
+    fireEvent.change(screen.getByLabelText("Move to date"), { target: { value: yKey() } });
     expect(spy).toHaveBeenCalledWith(1, { completed_at: `${yKey()}T12:00:00` });
-    expect(onChange).toHaveBeenCalled();
+    await waitFor(() => expect(onChange).toHaveBeenCalled());
   });
 
   it("unchecking an item moves it back (calls updateTodo done:false)", async () => {

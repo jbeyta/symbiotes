@@ -125,19 +125,16 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
 
       {moveId !== null && (
         <Modal title="Move to day" onClose={() => setMoveId(null)}>
-          {dates.filter((k) => k !== day).length === 0 && (
-            <div className="muted">No other days available yet.</div>
-          )}
-          {dates.filter((k) => k !== day).map((k) => (
-            <button
-              key={k}
-              className="secondary row"
-              style={{ display: "block", width: "100%", textAlign: "left" }}
-              onClick={() => void moveTo(moveId, k)}
-            >
-              {labelFor(k)}
-            </button>
-          ))}
+          <label className="muted" style={{ display: "block", marginBottom: 8 }}>Pick the day this was done:</label>
+          <input
+            type="date"
+            aria-label="Move to date"
+            autoFocus
+            defaultValue={day}
+            max={todayKey()}
+            style={{ width: "auto" }}
+            onChange={(e) => { if (e.target.value) void moveTo(moveId, e.target.value); }}
+          />
         </Modal>
       )}
     </Box>
