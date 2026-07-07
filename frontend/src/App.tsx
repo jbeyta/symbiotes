@@ -52,8 +52,8 @@ export default function App() {
       <div className="grid">
         <JiraBox tickets={dash.tickets} error={dash.errors.jira} onCreateTodo={createTodoFromItem} existingUrls={openTodoUrls} />
         <PrBox prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} existingUrls={openTodoUrls} />
-        <DoneLogBox todos={todos} onChange={() => void loadTodos()} />
         <TodosBox todos={openTodos} onChange={() => void loadTodos()} />
+        <DoneLogBox todos={todos} onChange={() => void loadTodos()} />
       </div>
     </>
   );
