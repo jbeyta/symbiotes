@@ -11,6 +11,7 @@
   --muted: #9aa3b2;
   --accent: var(--green);   /* links use the terminal green */
   --purple: #7b27cf;        /* kept for the (now-hidden) background blobs */
+  --control-h: 32px;        /* shared height for buttons, icon buttons, inputs, selects */
   /* Render native UI (incl. scrollbars) dark. */
   color-scheme: dark;
 }
@@ -121,26 +122,28 @@ body {
   background: var(--bg); border: 1px solid var(--border); border-radius: 0;
   color: var(--muted); white-space: pre-wrap;
 }
-/* Terminal buttons: green on black with a green outline; invert on hover. */
+/* Terminal buttons: green on black with a green outline; invert on hover.
+   All controls share one height (--control-h) so they line up. */
 button, button.secondary, .icon-btn {
+  height: var(--control-h);
+  display: inline-flex; align-items: center; justify-content: center;
   background: #000; color: var(--green); border: 1px solid var(--green);
   border-radius: 0; cursor: pointer; font: inherit;
 }
-button, button.secondary { padding: 6px 12px; }
+button, button.secondary { padding: 0 12px; }
+.icon-btn { padding: 0 8px; }
 button:hover:not(:disabled),
 button.secondary:hover:not(:disabled),
 .icon-btn:hover:not(:disabled) { background: var(--green); color: #000; }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
-.icon-btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 5px 8px;
-}
 input, textarea, select {
   width: 100%; background: var(--bg); color: var(--text);
-  border: 1px solid var(--border); border-radius: 0; padding: 6px 8px;
+  border: 1px solid var(--border); border-radius: 0;
 }
+input:not([type="checkbox"]), select { height: var(--control-h); padding: 0 8px; }
+textarea { padding: 6px 8px; }
 input[type="checkbox"] { width: auto; flex: none; cursor: pointer; accent-color: var(--green); }
-.search { width: 140px; padding: 4px 8px; font-size: 13px; }
+.search { width: 140px; font-size: 13px; }
 a { color: var(--accent); }
 .error { color: #ff6b6b; }
 
