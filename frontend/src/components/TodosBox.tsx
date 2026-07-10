@@ -111,7 +111,6 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
             onDragEnter={() => onDragEnter(i)}
             onDragOver={(e) => e.preventDefault()}
             onDragEnd={() => void persistOrder()}
-            style={{ display: "flex", alignItems: "center", gap: 8 }}
           >
             <span className="grip" aria-hidden="true" title="Drag to reorder">⠿</span>
             <input
@@ -120,7 +119,7 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
               aria-label={`Mark ${t.text} ${t.done ? "not done" : "done"}`}
               onChange={() => void toggle(t.id, !t.done)}
             />
-            <span style={{ flex: 1, textDecoration: t.done ? "line-through" : "none", color: t.done ? "var(--muted)" : "inherit" }}>
+            <span className={t.done ? "grow done-text" : "grow"}>
               {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
             </span>
             <button

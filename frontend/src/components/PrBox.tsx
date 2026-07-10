@@ -42,14 +42,13 @@ export function PrBox({
         const todoText = `#${p.number} ${p.title}`;
         const added = existingUrls.has(p.url);
         return (
-          <div className="row" key={`${p.repo}#${p.number}`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ flex: 1 }}>
+          <div className="row item-row" key={`${p.repo}#${p.number}`}>
+            <span className="grow">
               <a href={p.url} target="_blank" rel="noreferrer">#{p.number}</a> {p.title}{" "}
               {p.jiraKey ? <span className="muted">· {p.jiraKey}</span> : <span className="muted">· no ticket</span>}
             </span>
             <button
-              className="secondary"
-              style={{ flex: "none", whiteSpace: "nowrap" }}
+              className="secondary nowrap"
               disabled={added}
               onClick={() => onCreateTodo(todoText, p.url)}
             >

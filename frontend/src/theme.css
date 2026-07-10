@@ -126,6 +126,17 @@ body {
 .muted { color: var(--muted); }
 .grip { color: var(--muted); cursor: grab; user-select: none; line-height: 1; }
 .todo-line:active .grip { cursor: grabbing; }
+/* Layout helpers (replacing former inline styles). */
+.item-row { display: flex; align-items: center; gap: 8px; }
+.todo-line { display: flex; align-items: center; gap: 8px; }
+.grow { flex: 1; }
+.nowrap { flex: none; white-space: nowrap; }
+.box-action { margin-left: auto; }
+.done-text { text-decoration: line-through; color: var(--muted); }
+.day-select { width: auto; }
+.note-head { display: flex; justify-content: space-between; gap: 8px; }
+.note-title { cursor: pointer; }
+.note-body { margin-top: 4px; }
 .note-editor { margin: 6px 0 0 26px; }
 .note-editor textarea { width: 100%; min-height: 54px; resize: vertical; font: inherit; }
 .note-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 6px; }

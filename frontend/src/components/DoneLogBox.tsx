@@ -68,7 +68,7 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
   }
 
   const picker = (
-    <select value={day} onChange={(e) => setSelected(e.target.value)} aria-label="Day" style={{ width: "auto" }}>
+    <select value={day} onChange={(e) => setSelected(e.target.value)} aria-label="Day" className="day-select">
       {dates.map((k) => <option key={k} value={k}>{labelFor(k)}</option>)}
     </select>
   );
@@ -78,14 +78,14 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
       {items.length === 0 && <div className="muted">Nothing logged for {labelFor(day).toLowerCase()}.</div>}
       {items.map((t) => (
         <div className="row" key={t.id}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="item-row">
             <input
               type="checkbox"
               checked
               aria-label={`Move ${t.text} back to to-do`}
               onChange={() => void uncheck(t.id)}
             />
-            <span style={{ flex: 1 }}>
+            <span className="grow">
               {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
             </span>
             <button

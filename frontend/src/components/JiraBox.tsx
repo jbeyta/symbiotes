@@ -81,7 +81,7 @@ export function JiraBox({
   }
 
   const headerActions = (
-    <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
+    <span className="item-row">
       <input
         className="search"
         type="search"
@@ -110,15 +110,14 @@ export function JiraBox({
         const todoText = `${t.key} ${t.title}`;
         const added = existingUrls.has(t.url);
         return (
-          <div className="row" key={t.key} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ flex: 1 }}>
+          <div className="row item-row" key={t.key}>
+            <span className="grow">
               <a href={t.url} target="_blank" rel="noreferrer"><strong>{t.key}</strong></a> {t.title}{" "}
               <span className="muted">· {t.status}</span>
               {t.prs.length > 0 && <span className="muted"> · PR {t.prs.map((n) => `#${n}`).join(", ")}</span>}
             </span>
             <button
-              className="secondary"
-              style={{ flex: "none", whiteSpace: "nowrap" }}
+              className="secondary nowrap"
               disabled={added}
               onClick={() => onCreateTodo(todoText, t.url)}
             >
@@ -132,7 +131,7 @@ export function JiraBox({
         <Modal title="Filter by status" onClose={() => setFilterOpen(false)}>
           {allStatuses.length === 0 && <div className="muted">No statuses to filter.</div>}
           {allStatuses.map((s) => (
-            <label key={s} className="row" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <label key={s} className="row item-row">
               <input type="checkbox" checked={selected.has(s)} onChange={() => toggleStatus(s)} />
               {s}
             </label>

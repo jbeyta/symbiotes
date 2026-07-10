@@ -20,22 +20,22 @@ export function NotesBox({ notes, onChange }: { notes: NoteView[]; onChange: () 
 
   return (
     <Box title="Quick Notes">
-      <div className="row" style={{ display: "flex", gap: 8 }}>
+      <div className="row item-row">
         <input placeholder="New note title" value={title} onChange={(e) => setTitle(e.target.value)} />
         <button onClick={() => void add()}>Add Note</button>
       </div>
       {notes.length === 0 && <div className="muted">No notes.</div>}
       {notes.map((n) => (
         <div className="row" key={n.id}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-            <strong style={{ cursor: "pointer" }} onClick={() => setOpenId(openId === n.id ? null : n.id)}>
+          <div className="note-head">
+            <strong className="note-title" onClick={() => setOpenId(openId === n.id ? null : n.id)}>
               {n.title}
             </strong>
             <button className="secondary" aria-label={`Delete ${n.title}`} onClick={() => void remove(n.id)}>
               Delete
             </button>
           </div>
-          {openId === n.id && <div className="muted" style={{ marginTop: 4 }}>{n.description || "(no description)"}</div>}
+          {openId === n.id && <div className="muted note-body">{n.description || "(no description)"}</div>}
         </div>
       ))}
     </Box>

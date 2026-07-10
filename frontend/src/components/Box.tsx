@@ -16,7 +16,7 @@ export function Box({
       <h2>
         {icon}
         {title}
-        {action && <span style={{ marginLeft: "auto" }}>{action}</span>}
+        {action && <span className="box-action">{action}</span>}
       </h2>
       {children}
     </section>
