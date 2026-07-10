@@ -44,7 +44,7 @@ export default function App() {
         <span className="blob blob-4" />
       </div>
       <div className="topbar">
-        <img src="/symbiotes.png" alt="Symbiotes" style={{ height: "32px", width: "auto", display: "block" }} />
+        <img className="topbar-logo" src="/symbiotes.png" alt="Symbiotes" />
         <button onClick={() => void refresh()} disabled={loading}>
           {loading ? "Refreshing…" : "Refresh"}
         </button>
