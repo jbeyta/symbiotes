@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.joelabeyta.symbiotes</string>
+
+  <!-- Runs the single-process server (backend serves the built frontend + API
+       on one port). npm/node are referenced by absolute path because launchd
+       doesn't load the interactive shell where nvm sets up PATH.
+       NOTE: if you upgrade Node via nvm, update the two nvm paths below (or
+       re-run deploy/install.sh, which regenerates them). -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/joelabeyta/.nvm/versions/node/v22.22.0/bin/npm</string>
+    <string>start</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/joelabeyta/Projects/Symbiotes</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/Users/joelabeyta/.nvm/versions/node/v22.22.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+
+  <!-- Start on login, and keep it alive (restart if it ever exits). -->
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+
+  <!-- Combined stdout+stderr log (todo activity logging shows up here). -->
+  <key>StandardOutPath</key>
+  <string>/Users/joelabeyta/Library/Logs/symbiotes.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/joelabeyta/Library/Logs/symbiotes.log</string>
+</dict>
+</plist>

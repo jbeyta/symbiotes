@@ -1,6 +1,8 @@
+import express from "express";
 import dotenv from "dotenv";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { existsSync } from "node:fs";
 import { loadConfig } from "./config.js";
 import { createApp } from "./app.js";
 import { SqliteStore } from "./sqlite-store.js";
@@ -21,6 +23,21 @@ const app = createApp({
   getPrs: () => fetchMyOpenPrs(cfg),
 });
 
+// Serve the built frontend from the same process, so the whole app is one
+// server on one port. API routes (registered above) take precedence; anything
+// else falls back to index.html.
+const dist = resolve(here, "../../frontend/dist");
+if (existsSync(resolve(dist, "index.html"))) {
+  app.use(express.static(dist));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api/")) return next();
+    res.sendFile(resolve(dist, "index.html"));
+  });
+  console.log(`Serving frontend from ${dist}`);
+} else {
+  console.log("No frontend build found — run `npm run build`. Serving API only for now.");
+}
+
 app.listen(cfg.port, "127.0.0.1", () => {
-  console.log(`Symbiotes backend on http://127.0.0.1:${cfg.port}`);
+  console.log(`Symbiotes running on http://127.0.0.1:${cfg.port}`);
 });
