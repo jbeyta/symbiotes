@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Box } from "./Box.js";
 import { Modal } from "./Modal.js";
-import { CommentIcon } from "./icons.js";
+import { CommentIcon, PencilIcon } from "./icons.js";
 import { createTodo, updateTodo, deleteTodo, reorderTodos, type TodoView } from "../api.js";
 
 // Link only the leading identifier (e.g. "RW-1" or "#42"), like the Jira/PR boxes.
@@ -34,9 +34,22 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
   const dragFrom = useRef<number | null>(null);
   const [noteEditId, setNoteEditId] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
+  const [titleEditId, setTitleEditId] = useState<number | null>(null);
+  const [titleDraft, setTitleDraft] = useState("");
 
   useEffect(() => { setOrder(todos); }, [todos]);
   useEffect(() => { orderRef.current = order; }, [order]);
+
+  function startTitleEdit(t: TodoView) {
+    setTitleDraft(t.text);
+    setTitleEditId(t.id);
+  }
+  async function saveTitle(id: number) {
+    if (!titleDraft.trim()) return;
+    await updateTodo(id, { text: titleDraft.trim() });
+    setTitleEditId(null);
+    onChange();
+  }
 
   function toggleNote(t: TodoView) {
     if (noteEditId === t.id) { setNoteEditId(null); return; }
@@ -106,7 +119,7 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
         <div className="row" key={t.id}>
           <div
             className="todo-line"
-            draggable
+            draggable={titleEditId !== t.id}
             onDragStart={() => { dragFrom.current = i; }}
             onDragEnter={() => onDragEnter(i)}
             onDragOver={(e) => e.preventDefault()}
@@ -119,20 +132,49 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
               aria-label={`Mark ${t.text} ${t.done ? "not done" : "done"}`}
               onChange={() => void toggle(t.id, !t.done)}
             />
-            <span className={t.done ? "grow done-text" : "grow"}>
-              {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
-            </span>
-            <button
-              className="icon-btn"
-              aria-label={`${t.note ? "Edit" : "Add"} note for ${t.text}`}
-              title={t.note ? "Edit note" : "Add note"}
-              onClick={() => toggleNote(t)}
-            >
-              <CommentIcon />
-            </button>
-            <button className="secondary" aria-label={`Remove ${t.text}`} onClick={() => void remove(t.id)}>
-              ×
-            </button>
+            {titleEditId === t.id ? (
+              <>
+                <input
+                  className="grow"
+                  autoFocus
+                  value={titleDraft}
+                  onChange={(e) => setTitleDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") void saveTitle(t.id);
+                    if (e.key === "Escape") setTitleEditId(null);
+                  }}
+                />
+                <button className="icon-btn" aria-label="Save title" title="Save" onClick={() => void saveTitle(t.id)}>✓</button>
+                <button className="icon-btn" aria-label="Cancel edit" title="Cancel" onClick={() => setTitleEditId(null)}>×</button>
+              </>
+            ) : (
+              <>
+                <span className={t.done ? "grow done-text" : "grow"}>
+                  {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
+                </span>
+                {!t.url && (
+                  <button
+                    className="icon-btn"
+                    aria-label={`Edit ${t.text}`}
+                    title="Edit title"
+                    onClick={() => startTitleEdit(t)}
+                  >
+                    <PencilIcon />
+                  </button>
+                )}
+                <button
+                  className="icon-btn"
+                  aria-label={`${t.note ? "Edit" : "Add"} note for ${t.text}`}
+                  title={t.note ? "Edit note" : "Add note"}
+                  onClick={() => toggleNote(t)}
+                >
+                  <CommentIcon />
+                </button>
+                <button className="secondary" aria-label={`Remove ${t.text}`} onClick={() => void remove(t.id)}>
+                  ×
+                </button>
+              </>
+            )}
           </div>
           {noteEditId === t.id ? (
             <div className="note-editor">

@@ -65,6 +65,24 @@ describe("TodosBox", () => {
     expect(screen.getByPlaceholderText("Add a note…")).toHaveValue("two PRs");
   });
 
+  it("edits a manual to-do's title via the pencil", async () => {
+    const onChange = vi.fn();
+    const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...todos[0], text: "Deploy the fix" });
+    render(<TodosBox todos={todos} onChange={onChange} />);
+    await userEvent.click(screen.getByRole("button", { name: "Edit Deploy the thing" }));
+    const input = screen.getByDisplayValue("Deploy the thing");
+    await userEvent.clear(input);
+    await userEvent.type(input, "Deploy the fix{Enter}");
+    expect(spy).toHaveBeenCalledWith(1, { text: "Deploy the fix" });
+    expect(onChange).toHaveBeenCalled();
+  });
+
+  it("does not show a pencil on linked (ticket/PR) to-dos", () => {
+    const linked = [{ ...todos[0], id: 5, text: "RW-1 fix", url: "https://x/browse/RW-1" }];
+    render(<TodosBox todos={linked} onChange={vi.fn()} />);
+    expect(screen.queryByRole("button", { name: "Edit RW-1 fix" })).not.toBeInTheDocument();
+  });
+
   it("opens a note editor and saves the note", async () => {
     const onChange = vi.fn();
     const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...todos[0], note: "two PRs" });
