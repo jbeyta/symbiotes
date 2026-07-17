@@ -11,6 +11,8 @@
   --muted: #9aa3b2;
   --accent: var(--green);   /* links use the terminal green */
   --purple: #7b27cf;        /* kept for the (now-hidden) background blobs */
+  --pink: #ff00ff;          /* "post-release action required" flag highlight — full-saturation magenta */
+  --yellow: #ffff00;        /* "standup question" flag highlight — bright yellow */
   --control-h: 32px;        /* shared height for buttons, icon buttons, inputs, selects */
   /* Render native UI (incl. scrollbars) dark. */
   color-scheme: dark;
@@ -97,6 +99,67 @@ body {
 }
 .box h2 svg { flex: none; color: var(--green); }
 
+/* Tabbed box: a row of tabs in place of the h2 title, same sticky footprint
+   and dashed underline as a normal box header. */
+.box-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 54px;
+  margin: 0 -16px 12px;
+  padding: 0 16px;
+  background-color: var(--panel);
+  background-image: repeating-linear-gradient(to right, var(--green) 0 4px, transparent 4px 6px);
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 100% 1px;
+}
+.tabs-nav { display: flex; align-items: center; gap: 8px; }
+.box-tabs .tab { font-size: 15px; }
+.box-tabs .tab-active { background: var(--green); color: #000; }
+/* Header buttons/icons in the tab bar follow their own text color (green, or
+   black when hovered/active) rather than the forced-green title icon color. */
+.box-tabs button svg { color: inherit; }
+
+/* One-line titles: clip to a single line with an ellipsis. Requires min-width:0
+   on the flex item (see .grow) so it can actually shrink below its content. */
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Done-log day picker button (calendar) in the box header. */
+.day-btn { width: auto; gap: 6px; padding: 0 10px; }
+/* Header buttons invert on hover / when active — let their icons follow the
+   button's text color instead of the forced green used for the title icon. */
+.box h2 button svg { color: inherit; }
+
+/* "Post-release action required" highlight on a Done line item. */
+.item-row.post-release {
+  background: var(--pink);
+  padding: 4px 8px;
+  margin: 0 -8px;
+}
+.item-row.post-release,
+.item-row.post-release a,
+.item-row.post-release .muted { color: #000; }
+.icon-btn.flag-on { background: var(--green); color: #000; }
+
+/* "Standup question" highlight on a Done line item. */
+.item-row.question {
+  background: var(--yellow);
+  padding: 4px 8px;
+  margin: 0 -8px;
+}
+.item-row.question,
+.item-row.question a,
+.item-row.question .muted { color: #000; }
+.icon-btn.question-on { background: var(--green); color: #000; }
+
+/* Outer glow on a Done filter button while items of that kind are outstanding. */
+.icon-btn.glow-pink { box-shadow: 0 0 4px 1px var(--pink), 0 0 10px 3px var(--pink); }
+.icon-btn.glow-yellow { box-shadow: 0 0 4px 1px var(--yellow), 0 0 10px 3px var(--yellow); }
+
 /* Creation modal */
 .modal-backdrop {
   position: fixed; inset: 0; z-index: 100;
@@ -129,11 +192,10 @@ body {
 /* Layout helpers (replacing former inline styles). */
 .item-row { display: flex; align-items: center; gap: 8px; }
 .todo-line { display: flex; align-items: center; gap: 8px; }
-.grow { flex: 1; }
+.grow { flex: 1; min-width: 0; }
 .nowrap { flex: none; white-space: nowrap; }
 .box-action { margin-left: auto; }
 .done-text { text-decoration: line-through; color: var(--muted); }
-.day-select { width: auto; }
 .note-head { display: flex; justify-content: space-between; gap: 8px; }
 .note-title { cursor: pointer; }
 .note-body { margin-top: 4px; }

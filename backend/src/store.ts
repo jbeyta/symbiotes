@@ -14,6 +14,8 @@ export interface Todo {
   note: string;
   position: number;
   completed_at: string | null;
+  post_release: boolean;
+  question: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -21,7 +23,7 @@ export interface Todo {
 export interface NewNote { title: string; description?: string; }
 export interface NotePatch { title?: string; description?: string; }
 export interface NewTodo { text: string; url?: string; }
-export interface TodoPatch { text?: string; done?: boolean; note?: string; completed_at?: string; }
+export interface TodoPatch { text?: string; done?: boolean; note?: string; completed_at?: string; post_release?: boolean; question?: boolean; }
 
 export interface Store {
   listNotes(): Note[];

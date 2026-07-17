@@ -149,7 +149,7 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
               </>
             ) : (
               <>
-                <span className={t.done ? "grow done-text" : "grow"}>
+                <span className={t.done ? "grow truncate done-text" : "grow truncate"} title={t.text}>
                   {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
                 </span>
                 {!t.url && (

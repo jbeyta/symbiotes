@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { JiraTicketView } from "../api.js";
-import { Box } from "./Box.js";
 import { Modal } from "./Modal.js";
-import { JiraIcon, FilterIcon } from "./icons.js";
+import { FilterIcon } from "./icons.js";
 
 // Statuses shown by default. Wording varies between boards, so match loosely.
 export function isDefaultVisibleStatus(status: string): boolean {
@@ -31,16 +30,18 @@ function saveSet(key: string, set: Set<string>) {
   }
 }
 
-export function JiraBox({
+export function JiraPanel({
   tickets,
   error,
   onCreateTodo,
   existingUrls = new Set<string>(),
+  nav,
 }: {
   tickets: JiraTicketView[];
   error: string | null;
   onCreateTodo: (text: string, url?: string) => void;
   existingUrls?: Set<string>;
+  nav?: ReactNode;
 }) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -80,24 +81,25 @@ export function JiraBox({
     });
   }
 
-  const headerActions = (
-    <span className="item-row">
-      <input
-        className="search"
-        type="search"
-        placeholder="Search…"
-        aria-label="Search tickets"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <button className="icon-btn" aria-label="Filter by status" onClick={() => setFilterOpen(true)}>
-        <FilterIcon />
-      </button>
-    </span>
-  );
-
   return (
-    <Box title="My Jira Tickets" icon={<JiraIcon />} action={headerActions}>
+    <>
+      <div className="box-tabs">
+        {nav}
+        <span className="box-action item-row">
+          <input
+            className="search"
+            type="search"
+            placeholder="Search…"
+            aria-label="Search tickets"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button className="icon-btn" aria-label="Filter by status" onClick={() => setFilterOpen(true)}>
+            <FilterIcon />
+          </button>
+        </span>
+      </div>
+
       {error && <div className="error row">Jira error: {error}</div>}
       {!error && tickets.length === 0 && <div className="muted">No assigned tickets.</div>}
       {!error && visible.length === 0 && tickets.length > 0 && (
@@ -109,12 +111,13 @@ export function JiraBox({
       {shown.map((t) => {
         const todoText = `${t.key} ${t.title}`;
         const added = existingUrls.has(t.url);
+        const prs = t.prs.length > 0 ? ` · PR ${t.prs.map((n) => `#${n}`).join(", ")}` : "";
         return (
           <div className="row item-row" key={t.key}>
-            <span className="grow">
+            <span className="grow truncate" title={`${t.key} ${t.title} · ${t.status}${prs}`}>
               <a href={t.url} target="_blank" rel="noreferrer"><strong>{t.key}</strong></a> {t.title}{" "}
               <span className="muted">· {t.status}</span>
-              {t.prs.length > 0 && <span className="muted"> · PR {t.prs.map((n) => `#${n}`).join(", ")}</span>}
+              {t.prs.length > 0 && <span className="muted">{prs}</span>}
             </span>
             <button
               className="secondary nowrap"
@@ -141,6 +144,6 @@ export function JiraBox({
           </div>
         </Modal>
       )}
-    </Box>
+    </>
   );
 }

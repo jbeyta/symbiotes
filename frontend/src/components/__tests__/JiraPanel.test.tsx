@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { JiraBox, isDefaultVisibleStatus } from "../JiraBox.js";
+import { JiraPanel, isDefaultVisibleStatus } from "../JiraPanel.js";
 
 const tickets = [
   { key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1", prs: [42, 44] },
@@ -21,9 +21,9 @@ describe("isDefaultVisibleStatus", () => {
   });
 });
 
-describe("JiraBox", () => {
+describe("JiraPanel", () => {
   it("links the ticket key to its Jira page", () => {
-    render(<JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
+    render(<JiraPanel tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
     expect(screen.getByRole("link", { name: "RW-1" })).toHaveAttribute(
       "href",
       "https://x.atlassian.net/browse/RW-1"
@@ -32,13 +32,13 @@ describe("JiraBox", () => {
 
   it("creates a to-do with the key and title", async () => {
     const onCreateTodo = vi.fn();
-    render(<JiraBox tickets={tickets} error={null} onCreateTodo={onCreateTodo} />);
+    render(<JiraPanel tickets={tickets} error={null} onCreateTodo={onCreateTodo} />);
     await userEvent.click(screen.getByRole("button", { name: "Create To-Do" }));
     expect(onCreateTodo).toHaveBeenCalledWith("RW-1 Fix login", "https://x.atlassian.net/browse/RW-1");
   });
 
   it("shows only default statuses, and reveals others when toggled in the filter", async () => {
-    render(<JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
+    render(<JiraPanel tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
     // "In Progress" shown by default; "Done" hidden.
     expect(screen.getByText("Fix login")).toBeInTheDocument();
     expect(screen.queryByText("Old thing")).not.toBeInTheDocument();
@@ -49,19 +49,19 @@ describe("JiraBox", () => {
   });
 
   it("persists the filter selection across reloads via localStorage", async () => {
-    const { unmount } = render(<JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
+    const { unmount } = render(<JiraPanel tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
     await userEvent.click(screen.getByRole("button", { name: "Filter by status" }));
     await userEvent.click(screen.getByRole("checkbox", { name: "Done" }));
     expect(screen.getByText("Old thing")).toBeInTheDocument();
     unmount();
 
     // A brand-new instance (a fresh page load) reads the persisted selection.
-    render(<JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
+    render(<JiraPanel tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
     expect(screen.getByText("Old thing")).toBeInTheDocument();
   });
 
   it("filters rows by the search box", async () => {
-    render(<JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
+    render(<JiraPanel tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
     // Reveal both tickets first so search isn't masked by the status filter.
     await userEvent.click(screen.getByRole("button", { name: "Filter by status" }));
     await userEvent.click(screen.getByRole("checkbox", { name: "Done" }));
@@ -73,13 +73,13 @@ describe("JiraBox", () => {
   });
 
   it("shows all matching PRs on a ticket", () => {
-    render(<JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
+    render(<JiraPanel tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
     expect(screen.getByText(/PR #42, #44/)).toBeInTheDocument();
   });
 
   it("disables Create To-Do when an open to-do for that item's url exists", () => {
     render(
-      <JiraBox tickets={tickets} error={null} onCreateTodo={vi.fn()} existingUrls={new Set(["https://x.atlassian.net/browse/RW-1"])} />
+      <JiraPanel tickets={tickets} error={null} onCreateTodo={vi.fn()} existingUrls={new Set(["https://x.atlassian.net/browse/RW-1"])} />
     );
     expect(screen.getByRole("button", { name: "To-Do added" })).toBeDisabled();
   });

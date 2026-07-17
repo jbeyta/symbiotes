@@ -41,6 +41,32 @@ export function PencilIcon() {
   );
 }
 
+export function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" focusable="false">
+      <rect x="1.75" y="2.75" width="12.5" height="11.5" rx="1" />
+      <path d="M1.75 6h12.5M5 1.5v2.5M11 1.5v2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function FlagIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false">
+      <path d="M3 1a.75.75 0 0 1 .75.75V2h8.5a.5.5 0 0 1 .4.8L10.5 5.5l2.15 2.7a.5.5 0 0 1-.4.8H3.75v6a.75.75 0 0 1-1.5 0V1.75A.75.75 0 0 1 3 1z" />
+    </svg>
+  );
+}
+
+export function QuestionIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <path d="M5.75 5.7a2.3 2.3 0 1 1 3.4 2c-.85.55-1.25 1-1.25 1.9" />
+      <path d="M7.9 12.4v.01" />
+    </svg>
+  );
+}
+
 export function GitHubIcon() {
   return (
     <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false">

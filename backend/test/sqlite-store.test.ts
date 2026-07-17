@@ -57,6 +57,26 @@ describe("SqliteStore todos", () => {
     expect(store.updateTodo(t.id, { done: true })?.note).toBe("two PRs: #1 and #2");
   });
 
+  it("flags and clears a post-release action, independent of done", () => {
+    const t = store.createTodo({ text: "RW-1" });
+    expect(t.post_release).toBe(false);
+    expect(store.updateTodo(t.id, { post_release: true })?.post_release).toBe(true);
+    // Toggling done must not disturb the flag.
+    expect(store.updateTodo(t.id, { done: true })?.post_release).toBe(true);
+    expect(store.updateTodo(t.id, { post_release: false })?.post_release).toBe(false);
+  });
+
+  it("flags and clears a standup question, independent of the post-release flag", () => {
+    const t = store.createTodo({ text: "RW-1" });
+    expect(t.question).toBe(false);
+    expect(store.updateTodo(t.id, { question: true })?.question).toBe(true);
+    // The two flags are independent.
+    const both = store.updateTodo(t.id, { post_release: true });
+    expect(both?.question).toBe(true);
+    expect(both?.post_release).toBe(true);
+    expect(store.updateTodo(t.id, { question: false })?.question).toBe(false);
+  });
+
   it("lists in creation order and supports reordering", () => {
     const a = store.createTodo({ text: "A" });
     const b = store.createTodo({ text: "B" });

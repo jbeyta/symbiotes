@@ -15,7 +15,7 @@ describe("moveItem", () => {
 beforeEach(() => vi.restoreAllMocks());
 
 const todos = [
-  { id: 1, text: "Deploy the thing", done: false, url: "", note: "", completed_at: null, created_at: "", updated_at: "" },
+  { id: 1, text: "Deploy the thing", done: false, url: "", note: "", completed_at: null, post_release: false, question: false, created_at: "", updated_at: "" },
 ];
 
 describe("TodosBox", () => {
@@ -97,7 +97,7 @@ describe("TodosBox", () => {
   });
 
   it("links only the leading identifier when the todo has a source url", () => {
-    const linked = [{ id: 9, text: "RW-1 Fix login", done: false, url: "https://x.atlassian.net/browse/RW-1", note: "", completed_at: null, created_at: "", updated_at: "" }];
+    const linked = [{ id: 9, text: "RW-1 Fix login", done: false, url: "https://x.atlassian.net/browse/RW-1", note: "", completed_at: null, post_release: false, question: false, created_at: "", updated_at: "" }];
     render(<TodosBox todos={linked} onChange={vi.fn()} />);
     // The link is just "RW-1", not the whole text.
     expect(screen.getByRole("link", { name: "RW-1" })).toHaveAttribute("href", "https://x.atlassian.net/browse/RW-1");

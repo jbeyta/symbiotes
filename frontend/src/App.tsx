@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { getDashboard, listTodos, createTodo, type DashboardResponse, type TodoView } from "./api.js";
-import { JiraBox } from "./components/JiraBox.js";
-import { PrBox } from "./components/PrBox.js";
+import { TabsBox } from "./components/TabsBox.js";
+import { JiraPanel } from "./components/JiraPanel.js";
+import { PrPanel } from "./components/PrPanel.js";
 import { DoneLogBox } from "./components/DoneLogBox.js";
 import { TodosBox } from "./components/TodosBox.js";
 // NotesBox is kept for possible future use; swap it back into the grid to re-enable.
@@ -50,10 +51,27 @@ export default function App() {
         </button>
       </div>
       <div className="grid">
-        <JiraBox tickets={dash.tickets} error={dash.errors.jira} onCreateTodo={createTodoFromItem} existingUrls={openTodoUrls} />
-        <PrBox prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} existingUrls={openTodoUrls} />
+        <TabsBox
+          tabs={[
+            {
+              id: "jira",
+              label: "Jira",
+              render: (nav) => (
+                <JiraPanel nav={nav} tickets={dash.tickets} error={dash.errors.jira} onCreateTodo={createTodoFromItem} existingUrls={openTodoUrls} />
+              ),
+            },
+            {
+              id: "prs",
+              label: "PRs",
+              render: (nav) => (
+                <PrPanel nav={nav} prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} existingUrls={openTodoUrls} />
+              ),
+            },
+          ]}
+        />
         <TodosBox todos={openTodos} onChange={() => void loadTodos()} />
         <DoneLogBox todos={todos} onChange={() => void loadTodos()} />
+        <div className="box" />
       </div>
     </>
   );

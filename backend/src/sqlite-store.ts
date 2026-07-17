@@ -12,6 +12,8 @@ interface TodoRow {
   note: string;
   position: number;
   completed_at: string | null;
+  post_release: number;
+  question: number;
   created_at: string;
   updated_at: string;
 }
@@ -32,6 +34,8 @@ CREATE TABLE IF NOT EXISTS todos (
   note         TEXT NOT NULL DEFAULT '',
   position     INTEGER NOT NULL DEFAULT 0,
   completed_at TEXT,
+  post_release INTEGER NOT NULL DEFAULT 0,
+  question     INTEGER NOT NULL DEFAULT 0,
   created_at   TEXT NOT NULL,
   updated_at   TEXT NOT NULL
 );
@@ -65,6 +69,12 @@ export class SqliteStore implements Store {
     }
     if (!todoCols.some((c) => c.name === "note")) {
       this.db.exec("ALTER TABLE todos ADD COLUMN note TEXT NOT NULL DEFAULT ''");
+    }
+    if (!todoCols.some((c) => c.name === "post_release")) {
+      this.db.exec("ALTER TABLE todos ADD COLUMN post_release INTEGER NOT NULL DEFAULT 0");
+    }
+    if (!todoCols.some((c) => c.name === "question")) {
+      this.db.exec("ALTER TABLE todos ADD COLUMN question INTEGER NOT NULL DEFAULT 0");
     }
   }
 
@@ -133,9 +143,11 @@ export class SqliteStore implements Store {
     else if (!nextDone) completedAt = null;
     // Explicit completed_at (e.g. moving a done item to another day) wins.
     if (p.completed_at !== undefined) completedAt = p.completed_at;
+    const postRelease = p.post_release ?? existing.post_release;
+    const question = p.question ?? existing.question;
     this.db
-      .prepare("UPDATE todos SET text=?, done=?, note=?, completed_at=?, updated_at=? WHERE id=?")
-      .run(p.text ?? existing.text, nextDone ? 1 : 0, p.note ?? existing.note, completedAt, this.now(), id);
+      .prepare("UPDATE todos SET text=?, done=?, note=?, completed_at=?, post_release=?, question=?, updated_at=? WHERE id=?")
+      .run(p.text ?? existing.text, nextDone ? 1 : 0, p.note ?? existing.note, completedAt, postRelease ? 1 : 0, question ? 1 : 0, this.now(), id);
     return this.getTodo(id);
   }
 
@@ -154,5 +166,5 @@ export class SqliteStore implements Store {
 }
 
 function toTodo(row: TodoRow): Todo {
-  return { ...row, done: row.done === 1 };
+  return { ...row, done: row.done === 1, post_release: row.post_release === 1, question: row.question === 1 };
 }

@@ -39,12 +39,14 @@ export function todosRouter(store: Store): Router {
   });
 
   router.put("/:id", (req, res) => {
-    const { text, done, note, completed_at } = req.body ?? {};
+    const { text, done, note, completed_at, post_release, question } = req.body ?? {};
     const updated = store.updateTodo(Number(req.params.id), {
       text,
       done: typeof done === "boolean" ? done : undefined,
       note: typeof note === "string" ? note : undefined,
       completed_at: typeof completed_at === "string" ? completed_at : undefined,
+      post_release: typeof post_release === "boolean" ? post_release : undefined,
+      question: typeof question === "boolean" ? question : undefined,
     });
     if (!updated) return res.status(404).json({ error: "not found" });
     const tag = `#${updated.id} ${JSON.stringify(updated.text)}`;
@@ -52,7 +54,11 @@ export function todosRouter(store: Store): Router {
     else if (done === false) log("reopened", tag);
     if (typeof completed_at === "string") log("moved", `${tag} -> ${updated.completed_at} (local day ${localDay(updated.completed_at)})`);
     if (typeof note === "string") log("note", `${tag} (${note.length} chars)`);
-    if (typeof text === "string" && done === undefined && note === undefined && completed_at === undefined) log("renamed", tag);
+    if (post_release === true) log("flagged", `${tag} post-release action required`);
+    else if (post_release === false) log("unflagged", tag);
+    if (question === true) log("question", `${tag} flagged for standup`);
+    else if (question === false) log("unquestioned", tag);
+    if (typeof text === "string" && done === undefined && note === undefined && completed_at === undefined && post_release === undefined && question === undefined) log("renamed", tag);
     res.json(updated);
   });
 

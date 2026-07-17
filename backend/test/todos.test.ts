@@ -26,6 +26,14 @@ describe("todos CRUD", () => {
     const toggled = await request(a).put(`/api/todos/${id}`).send({ done: true });
     expect(toggled.body.done).toBe(true);
 
+    // Post-release and question flags round-trip through the API.
+    expect(created.body.post_release).toBe(false);
+    expect(created.body.question).toBe(false);
+    const flagged = await request(a).put(`/api/todos/${id}`).send({ post_release: true });
+    expect(flagged.body.post_release).toBe(true);
+    const questioned = await request(a).put(`/api/todos/${id}`).send({ question: true });
+    expect(questioned.body.question).toBe(true);
+
     expect((await request(a).delete(`/api/todos/${id}`)).status).toBe(204);
     expect((await request(a).put(`/api/todos/${id}`).send({ done: false })).status).toBe(404);
   });
