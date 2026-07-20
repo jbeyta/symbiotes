@@ -134,31 +134,41 @@ body {
    button's text color instead of the forced green used for the title icon. */
 .box h2 button svg { color: inherit; }
 
-/* "Post-release action required" highlight on a Done line item. */
-.item-row.post-release {
+/* "Post-release action required" highlight on a Done / To-Do line item. */
+.item-row.post-release,
+.todo-line.post-release {
   background: var(--pink);
   padding: 4px 8px;
   margin: 0 -8px;
 }
 .item-row.post-release,
 .item-row.post-release a,
-.item-row.post-release .muted { color: #000; }
+.item-row.post-release .muted,
+.todo-line.post-release,
+.todo-line.post-release a,
+.todo-line.post-release .muted { color: #000; }
 .icon-btn.flag-on { background: var(--green); color: #000; }
 
-/* "Standup question" highlight on a Done line item. */
-.item-row.question {
+/* "Standup question" highlight on a Done / To-Do line item. */
+.item-row.question,
+.todo-line.question {
   background: var(--yellow);
   padding: 4px 8px;
   margin: 0 -8px;
 }
 .item-row.question,
 .item-row.question a,
-.item-row.question .muted { color: #000; }
+.item-row.question .muted,
+.todo-line.question,
+.todo-line.question a,
+.todo-line.question .muted { color: #000; }
 .icon-btn.question-on { background: var(--green); color: #000; }
 
-/* Outer glow on a Done filter button while items of that kind are outstanding. */
-.icon-btn.glow-pink { box-shadow: 0 0 4px 1px var(--pink), 0 0 10px 3px var(--pink); }
-.icon-btn.glow-yellow { box-shadow: 0 0 4px 1px var(--yellow), 0 0 10px 3px var(--yellow); }
+/* Outer ring on a filter button while items of that kind are outstanding: a
+   1px gap (panel color) just outside the green border, then a 1px colored line.
+   The narrower panel ring is listed first so it paints on top of the color. */
+.icon-btn.glow-pink { box-shadow: 0 0 0 1px var(--panel), 0 0 0 2px var(--pink); }
+.icon-btn.glow-yellow { box-shadow: 0 0 0 1px var(--panel), 0 0 0 2px var(--yellow); }
 
 /* Creation modal */
 .modal-backdrop {

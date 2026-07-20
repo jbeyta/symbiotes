@@ -4,53 +4,24 @@ import { Modal } from "./Modal.js";
 import { Calendar } from "./Calendar.js";
 import { LinkedId } from "./TodosBox.js";
 import { CommentIcon, ClockIcon, CalendarIcon, FlagIcon, QuestionIcon } from "./icons.js";
+import { dayKey, todayKey, labelFor, rowClass } from "./todo-helpers.js";
 import { updateTodo, type TodoView } from "../api.js";
 
-// Local-timezone day key (YYYY-MM-DD) for a timestamp, so "today" matches the
-// user's actual day regardless of the stored UTC value.
-export function dayKey(iso: string): string {
-  const d = new Date(iso);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-function todayKey(): string {
-  return dayKey(new Date().toISOString());
-}
-function yesterdayKey(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return dayKey(d.toISOString());
-}
-function labelFor(key: string): string {
-  if (key === todayKey()) return "Today";
-  if (key === yesterdayKey()) return "Yesterday";
-  return new Date(`${key}T00:00:00`).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-}
-
-// Row highlight for a done item. Post-release (magenta) takes precedence over
-// a standup question (yellow) when an item carries both flags.
-function rowClass(t: TodoView): string {
-  if (t.post_release) return "item-row post-release";
-  if (t.question) return "item-row question";
-  return "item-row";
-}
+// Re-export so existing importers (and tests) can keep pulling dayKey from here.
+export { dayKey };
 
 export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: () => void }) {
   const done = todos.filter((t) => t.done && t.completed_at);
 
   const [selected, setSelected] = useState<string>(todayKey());
   const [dayPickerOpen, setDayPickerOpen] = useState(false);
-  // Active flag filter, or null for the normal per-day view.
-  const [filter, setFilter] = useState<"post_release" | "question" | null>(null);
   const [noteEditId, setNoteEditId] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [moveId, setMoveId] = useState<number | null>(null);
   const day = selected;
-  // A flag filter ignores the day and lists every matching item, newest first;
-  // the normal view is scoped to the picked day.
-  const items = filter
-    ? done.filter((t) => t[filter]).sort((a, b) => b.completed_at!.localeCompare(a.completed_at!))
-    : done.filter((t) => dayKey(t.completed_at!) === day);
+  const items = done.filter((t) => dayKey(t.completed_at!) === day);
+  // Days that actually have logged items — the day filter disables the rest.
+  const daysWithItems = new Set(done.map((t) => dayKey(t.completed_at!)));
 
   async function uncheck(id: number) {
     await updateTodo(id, { done: false });
@@ -85,48 +56,17 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
     onChange();
   }
 
-  const toggleFilter = (f: "post_release" | "question") => setFilter((prev) => (prev === f ? null : f));
-
-  // Glow the filter buttons while any done item still carries that flag.
-  const hasFlagged = done.some((t) => t.post_release);
-  const hasQuestions = done.some((t) => t.question);
-
   const actions = (
     <span className="item-row">
-      <button
-        className={`icon-btn${filter === "post_release" ? " flag-on" : ""}${hasFlagged ? " glow-pink" : ""}`}
-        aria-label={filter === "post_release" ? "Show all done items" : "Show only flagged items"}
-        aria-pressed={filter === "post_release"}
-        title={filter === "post_release" ? "Showing flagged only" : "Show flagged only"}
-        onClick={() => toggleFilter("post_release")}
-      >
-        <FlagIcon />
+      <button className="day-btn" aria-label="Pick day" onClick={() => setDayPickerOpen(true)}>
+        <CalendarIcon /> {labelFor(day)}
       </button>
-      <button
-        className={`icon-btn${filter === "question" ? " question-on" : ""}${hasQuestions ? " glow-yellow" : ""}`}
-        aria-label={filter === "question" ? "Show all done items" : "Show only question items"}
-        aria-pressed={filter === "question"}
-        title={filter === "question" ? "Showing questions only" : "Show questions only"}
-        onClick={() => toggleFilter("question")}
-      >
-        <QuestionIcon />
-      </button>
-      {!filter && (
-        <button className="day-btn" aria-label="Pick day" onClick={() => setDayPickerOpen(true)}>
-          <CalendarIcon /> {labelFor(day)}
-        </button>
-      )}
     </span>
   );
 
-  const emptyMsg =
-    filter === "post_release" ? "No flagged items."
-    : filter === "question" ? "No question items."
-    : `Nothing logged for ${labelFor(day).toLowerCase()}.`;
-
   return (
     <Box title="Done" action={actions}>
-      {items.length === 0 && <div className="muted">{emptyMsg}</div>}
+      {items.length === 0 && <div className="muted">{`Nothing logged for ${labelFor(day).toLowerCase()}.`}</div>}
       {items.map((t) => (
         <div className="row" key={t.id}>
           <div className={rowClass(t)}>
@@ -136,7 +76,6 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
               aria-label={`Move ${t.text} back to to-do`}
               onChange={() => void uncheck(t.id)}
             />
-            {filter && <span className="muted nowrap">{labelFor(dayKey(t.completed_at!))}</span>}
             <span className="grow truncate" title={t.text}>
               {t.url ? <LinkedId text={t.text} url={t.url} /> : t.text}
             </span>
@@ -199,6 +138,7 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
           <Calendar
             initial={day}
             max={todayKey()}
+            enabledDays={daysWithItems}
             onPick={(k) => { setSelected(k); setDayPickerOpen(false); }}
           />
         </Modal>

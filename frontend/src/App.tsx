@@ -5,6 +5,7 @@ import { JiraPanel } from "./components/JiraPanel.js";
 import { PrPanel } from "./components/PrPanel.js";
 import { DoneLogBox } from "./components/DoneLogBox.js";
 import { TodosBox } from "./components/TodosBox.js";
+import { StandupBox } from "./components/StandupBox.js";
 // NotesBox is kept for possible future use; swap it back into the grid to re-enable.
 
 const EMPTY: DashboardResponse = { tickets: [], prs: [], errors: { jira: null, github: null } };
@@ -71,7 +72,7 @@ export default function App() {
         />
         <TodosBox todos={openTodos} onChange={() => void loadTodos()} />
         <DoneLogBox todos={todos} onChange={() => void loadTodos()} />
-        <div className="box" />
+        <StandupBox todos={todos} />
       </div>
     </>
   );

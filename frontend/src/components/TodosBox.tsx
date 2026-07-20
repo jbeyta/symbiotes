@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Box } from "./Box.js";
 import { Modal } from "./Modal.js";
-import { CommentIcon, PencilIcon } from "./icons.js";
+import { CommentIcon, PencilIcon, QuestionIcon } from "./icons.js";
+import { flagSuffix } from "./todo-helpers.js";
 import { createTodo, updateTodo, deleteTodo, reorderTodos, type TodoView } from "../api.js";
 
 // Link only the leading identifier (e.g. "RW-1" or "#42"), like the Jira/PR boxes.
@@ -79,6 +80,11 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
     onChange();
   }
 
+  async function toggleQuestion(t: TodoView) {
+    await updateTodo(t.id, { question: !t.question });
+    onChange();
+  }
+
   async function remove(id: number) {
     await deleteTodo(id);
     onChange();
@@ -118,7 +124,7 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
       {order.map((t, i) => (
         <div className="row" key={t.id}>
           <div
-            className="todo-line"
+            className={`todo-line${flagSuffix(t)}`}
             draggable={titleEditId !== t.id}
             onDragStart={() => { dragFrom.current = i; }}
             onDragEnter={() => onDragEnter(i)}
@@ -162,6 +168,15 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
                     <PencilIcon />
                   </button>
                 )}
+                <button
+                  className={t.question ? "icon-btn question-on" : "icon-btn"}
+                  aria-label={`${t.question ? "Clear" : "Flag"} standup question for ${t.text}`}
+                  aria-pressed={t.question}
+                  title={t.question ? "Clear question flag" : "Flag: question for standup"}
+                  onClick={() => void toggleQuestion(t)}
+                >
+                  <QuestionIcon />
+                </button>
                 <button
                   className="icon-btn"
                   aria-label={`${t.note ? "Edit" : "Add"} note for ${t.text}`}

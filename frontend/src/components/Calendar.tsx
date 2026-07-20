@@ -9,8 +9,20 @@ const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const pad = (n: number) => String(n).padStart(2, "0");
 
 // A minimal month-grid calendar. `initial`/`max` are YYYY-MM-DD (local) keys.
-// Clicking a day calls onPick with that day's YYYY-MM-DD key.
-export function Calendar({ initial, max, onPick }: { initial: string; max?: string; onPick: (key: string) => void }) {
+// Clicking a day calls onPick with that day's YYYY-MM-DD key. When `enabledDays`
+// is given, days whose key isn't in the set are disabled (e.g. days with no
+// items to show).
+export function Calendar({
+  initial,
+  max,
+  enabledDays,
+  onPick,
+}: {
+  initial: string;
+  max?: string;
+  enabledDays?: Set<string>;
+  onPick: (key: string) => void;
+}) {
   const [year, setYear] = useState(() => Number(initial.slice(0, 4)));
   const [month, setMonth] = useState(() => Number(initial.slice(5, 7)) - 1); // 0-indexed
 
@@ -43,7 +55,7 @@ export function Calendar({ initial, max, onPick }: { initial: string; max?: stri
         {cells.map((d, i) => {
           if (d === null) return <span key={`blank-${i}`} />;
           const key = `${year}-${pad(month + 1)}-${pad(d)}`;
-          const disabled = max ? key > max : false;
+          const disabled = (max ? key > max : false) || (enabledDays ? !enabledDays.has(key) : false);
           return (
             <button key={key} className="cal-day" disabled={disabled} onClick={() => onPick(key)}>
               {d}

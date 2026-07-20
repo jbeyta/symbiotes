@@ -45,6 +45,23 @@ describe("TodosBox", () => {
     expect(onChange).toHaveBeenCalled();
   });
 
+  it("flags a to-do with a standup question", async () => {
+    const onChange = vi.fn();
+    const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...todos[0], question: true });
+    render(<TodosBox todos={todos} onChange={onChange} />);
+    await userEvent.click(screen.getByRole("button", { name: "Flag standup question for Deploy the thing" }));
+    expect(spy).toHaveBeenCalledWith(1, { question: true });
+    expect(onChange).toHaveBeenCalled();
+  });
+
+  it("clears a to-do's question flag when already set", async () => {
+    const flagged = [{ ...todos[0], question: true }];
+    const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...flagged[0], question: false });
+    render(<TodosBox todos={flagged} onChange={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "Clear standup question for Deploy the thing" }));
+    expect(spy).toHaveBeenCalledWith(1, { question: false });
+  });
+
   it("removes a todo", async () => {
     const onChange = vi.fn();
     const delSpy = vi.spyOn(api, "deleteTodo").mockResolvedValue(new Response(null, { status: 204 }));

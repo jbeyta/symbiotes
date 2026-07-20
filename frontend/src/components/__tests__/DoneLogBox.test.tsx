@@ -36,11 +36,22 @@ describe("DoneLogBox", () => {
   it("switches to another day via the calendar picker", async () => {
     render(<DoneLogBox todos={todos} onChange={vi.fn()} />);
     await userEvent.click(screen.getByRole("button", { name: "Pick day" }));
-    // Navigate to last month and pick the 15th — a day with no completions and,
-    // regardless of the run date, never today. Today's item should drop out.
-    await userEvent.click(screen.getByRole("button", { name: "Previous month" }));
-    await userEvent.click(screen.getByRole("button", { name: "15" }));
+    // Pick yesterday (a day that has a logged item, so it's enabled). Today's
+    // item should drop out and yesterday's should appear.
+    const y = new Date();
+    y.setDate(y.getDate() - 1);
+    await userEvent.click(screen.getByRole("button", { name: String(y.getDate()), hidden: false }));
     expect(screen.queryByText("Shipped login fix")).not.toBeInTheDocument();
+    expect(screen.getByText("Reviewed RW-99")).toBeInTheDocument();
+  });
+
+  it("disables calendar days that have no logged items", async () => {
+    render(<DoneLogBox todos={todos} onChange={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "Pick day" }));
+    // Two days back has no items in the fixture → disabled.
+    const d = new Date();
+    d.setDate(d.getDate() - 2);
+    expect(screen.getByRole("button", { name: String(d.getDate()) })).toBeDisabled();
   });
 
   it("shows a note read-only and opens an editor on comment-icon click", async () => {
@@ -78,48 +89,10 @@ describe("DoneLogBox", () => {
     await waitFor(() => expect(onChange).toHaveBeenCalled());
   });
 
-  it("filters to only flagged items, across all days", async () => {
-    const data = [
-      { ...todos[0] },                       // today, unflagged
-      { ...todos[1], post_release: true },   // yesterday, flagged
-    ];
-    render(<DoneLogBox todos={data} onChange={vi.fn()} />);
-    // Default day view: today's unflagged item shows; yesterday's is hidden.
-    expect(screen.getByText("Shipped login fix")).toBeInTheDocument();
-    expect(screen.queryByText("Reviewed RW-99")).not.toBeInTheDocument();
-    // Flagged-only ignores the day: yesterday's flagged item shows, today's drops.
-    await userEvent.click(screen.getByRole("button", { name: "Show only flagged items" }));
-    expect(screen.getByText("Reviewed RW-99")).toBeInTheDocument();
-    expect(screen.queryByText("Shipped login fix")).not.toBeInTheDocument();
-  });
-
-  it("filters to only question items, across all days", async () => {
-    const data = [
-      { ...todos[0] },                    // today, no question
-      { ...todos[1], question: true },    // yesterday, question
-    ];
-    render(<DoneLogBox todos={data} onChange={vi.fn()} />);
-    expect(screen.getByText("Shipped login fix")).toBeInTheDocument();
-    expect(screen.queryByText("Reviewed RW-99")).not.toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Show only question items" }));
-    expect(screen.getByText("Reviewed RW-99")).toBeInTheDocument();
-    expect(screen.queryByText("Shipped login fix")).not.toBeInTheDocument();
-  });
-
-  it("glows the filter buttons only while matching items are outstanding", () => {
-    const { rerender } = render(<DoneLogBox todos={todos} onChange={vi.fn()} />);
-    // Nothing flagged in the base fixture.
-    expect(screen.getByRole("button", { name: "Show only flagged items" })).not.toHaveClass("glow-pink");
-    expect(screen.getByRole("button", { name: "Show only question items" })).not.toHaveClass("glow-yellow");
-
-    rerender(
-      <DoneLogBox
-        todos={[{ ...todos[0], post_release: true }, { ...todos[1], question: true }]}
-        onChange={vi.fn()}
-      />
-    );
-    expect(screen.getByRole("button", { name: "Show only flagged items" })).toHaveClass("glow-pink");
-    expect(screen.getByRole("button", { name: "Show only question items" })).toHaveClass("glow-yellow");
+  it("no longer renders the flag/question day filters in the header", () => {
+    render(<DoneLogBox todos={todos} onChange={vi.fn()} />);
+    expect(screen.queryByRole("button", { name: "Show only flagged items" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Show only question items" })).not.toBeInTheDocument();
   });
 
   it("flags a done item with a standup question", async () => {

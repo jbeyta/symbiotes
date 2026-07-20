@@ -12,6 +12,13 @@ describe("Calendar", () => {
     expect(onPick).toHaveBeenCalledWith("2026-03-09");
   });
 
+  it("disables days not in enabledDays", () => {
+    const onPick = vi.fn();
+    render(<Calendar initial="2026-03-15" enabledDays={new Set(["2026-03-09"])} onPick={onPick} />);
+    expect(screen.getByRole("button", { name: "9" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "10" })).toBeDisabled();
+  });
+
   it("navigates months and disables days after max", async () => {
     const onPick = vi.fn();
     render(<Calendar initial="2026-03-15" max="2026-03-10" onPick={onPick} />);
