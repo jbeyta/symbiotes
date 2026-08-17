@@ -4,7 +4,7 @@ import { Modal } from "./Modal.js";
 import { Calendar } from "./Calendar.js";
 import { LinkedId } from "./TodosBox.js";
 import { CommentIcon, ClockIcon, CalendarIcon, EraserIcon, FlagIcon, QuestionIcon } from "./icons.js";
-import { dayKey, todayKey, yesterdayKey, labelFor, rowClass, toggleFlag } from "./todo-helpers.js";
+import { dayKey, todayKey, lastWorkDayKey, labelFor, rowClass, toggleFlag } from "./todo-helpers.js";
 import { updateTodo, type TodoView } from "../api.js";
 
 // Re-export so existing importers (and tests) can keep pulling dayKey from here.
@@ -18,13 +18,11 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
   const [noteEditId, setNoteEditId] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [moveId, setMoveId] = useState<number | null>(null);
-  // The "Yesterday" toggle overrides the day picker while it is engaged.
+  // "Yesterday" = last work day (Friday on a Monday); overrides the day picker.
   const [yesterdayOn, setYesterdayOn] = useState(false);
-  const day = yesterdayOn ? yesterdayKey() : selected;
+  const day = yesterdayOn ? lastWorkDayKey() : selected;
   const items = done.filter((t) => dayKey(t.completed_at!) === day);
-  // Days that actually have logged items — the day filter disables the rest.
-  // Today is always selectable, even with nothing logged, so you can jump back
-  // to it after browsing other days.
+  // The day picker only enables days with logged items, plus today.
   const daysWithItems = new Set([...done.map((t) => dayKey(t.completed_at!)), todayKey()]);
 
   async function uncheck(id: number) {

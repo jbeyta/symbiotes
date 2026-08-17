@@ -2,8 +2,7 @@ import { useState, type ReactNode } from "react";
 import type { PrView } from "../api.js";
 import { FilterIcon, SpeechBubbleIcon } from "./icons.js";
 
-// Display / to-do text for a PR: "#<num> - <KEY> <title>", or "#<num> <title>"
-// when the PR has no linked Jira ticket.
+// "#<num> - <KEY> <title>", or "#<num> <title>" without a linked ticket.
 function prLabel(p: PrView): string {
   return p.jiraKey ? `#${p.number} - ${p.jiraKey} ${p.title}` : `#${p.number} ${p.title}`;
 }

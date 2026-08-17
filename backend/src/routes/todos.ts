@@ -1,11 +1,11 @@
 import { Router } from "express";
 import type { Store } from "../store.js";
 
-// Lightweight activity log to the server console (the `npm run dev` terminal).
+// Activity log to the server console.
 function log(action: string, detail: string) {
   console.log(`[todo] ${new Date().toISOString()} ${action} ${detail}`);
 }
-// Local day (YYYY-MM-DD) for a timestamp — mirrors the frontend's Done-log grouping.
+// Local day (YYYY-MM-DD) — mirrors the frontend's Done-log grouping.
 function localDay(iso: string | null): string {
   if (!iso) return "—";
   const d = new Date(iso);

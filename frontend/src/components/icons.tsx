@@ -1,4 +1,4 @@
-// Inline SVG marks so the app stays fully self-contained (no external image fetch).
+// Inline SVGs so the app stays self-contained (no external image fetch).
 
 export function JiraIcon() {
   return (
@@ -77,9 +77,8 @@ export function EraserIcon() {
   );
 }
 
-// 8-bit speech bubble for the "unaddressed review comment" flag. Drawn on a
-// 16x16 pixel grid with square steps only (no curves, no diagonals) so it reads
-// as pixel art. The three dots are punched out in the panel color.
+// 8-bit speech bubble: square steps only (no curves) so it reads as pixel art;
+// the three dots are punched out in the panel color.
 export function SpeechBubbleIcon() {
   return (
     <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false">

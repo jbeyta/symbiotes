@@ -10,7 +10,6 @@ import { fetchMyTickets } from "./jira.js";
 import { fetchMyOpenPrs } from "./github.js";
 
 // Load the repo-root .env regardless of the process working directory.
-// This file lives at backend/src/server.ts, so the repo root is two levels up.
 const here = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: resolve(here, "../../.env") });
 
@@ -23,9 +22,8 @@ const app = createApp({
   getPrs: () => fetchMyOpenPrs(cfg),
 });
 
-// Serve the built frontend from the same process, so the whole app is one
-// server on one port. API routes (registered above) take precedence; anything
-// else falls back to index.html.
+// Serve the built frontend from the same process; API routes take precedence,
+// anything else falls back to index.html.
 const dist = resolve(here, "../../frontend/dist");
 if (existsSync(resolve(dist, "index.html"))) {
   app.use(express.static(dist));

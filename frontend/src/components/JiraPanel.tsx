@@ -45,9 +45,8 @@ export function JiraPanel({
 }) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [query, setQuery] = useState("");
-  // Statuses currently shown, persisted in localStorage so the filter survives
-  // full reloads. `known` tracks statuses already seen, so defaults are applied
-  // only the first time a status appears — a status you unchecked stays unchecked.
+  // Shown statuses persist in localStorage; `known` tracks statuses already
+  // seen so defaults apply only the first time a status appears.
   const [selected, setSelected] = useState<Set<string>>(() => loadSet(LS_SELECTED));
   const [known, setKnown] = useState<Set<string>>(() => loadSet(LS_KNOWN));
 

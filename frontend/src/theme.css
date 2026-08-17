@@ -1,23 +1,20 @@
 :root {
-  /* Single source of truth for the terminal green — change this one line to
-     recolor links, borders, icons, and accents across the whole app. */
+  /* Terminal green — the single accent; change here to recolor the app. */
   --green: #33ff66;
 
   --bg: #0f1115;
   --panel: #171a21;
   --panel-75: rgba(23, 26, 33, 0.75);
-  --border: var(--green);   /* all borders/lines use the terminal green */
+  --border: var(--green);
   --text: #e6e8ec;
   --muted: #9aa3b2;
-  --accent: var(--green);   /* links use the terminal green */
+  --accent: var(--green);
   --purple: #7b27cf;        /* kept for the (now-hidden) background blobs */
-  --pink: #ff00ff;          /* "post-release action required" flag highlight — full-saturation magenta */
-  --yellow: #ffff00;        /* "standup question" flag highlight — bright yellow */
-  --control-h: 32px;        /* shared height for buttons, icon buttons, inputs, selects */
-  /* Render native UI (incl. scrollbars) dark. */
+  --pink: #ff00ff;          /* post-release flag */
+  --yellow: #ffff00;        /* standup-question flag */
+  --control-h: 32px;        /* shared height for buttons, inputs, selects */
   color-scheme: dark;
 }
-/* Scrollbars matched to the dark theme (WebKit + Firefox). */
 * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -35,7 +32,6 @@ body {
   color: var(--text);
   font: 14px/1.5 ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
-/* App fills the viewport: fixed topbar, grid takes the rest. */
 #root {
   display: flex;
   flex-direction: column;
@@ -48,7 +44,7 @@ body {
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  padding: 16px 24px;
+  padding: 16px 16px;
   border-bottom: 1px solid var(--border);
   position: relative;
 }
@@ -60,9 +56,7 @@ body {
   top: 6px;
   left: 24px;
 }
-/* Always a 2x2 grid filling the remaining space — each box is exactly one quarter.
-   Boxes touch edge-to-edge; the 1px gap reveals the green grid background as the
-   dividing lines. No outer padding, no gaps of whitespace. */
+/* 2x2 grid; the 1px gap over the green background draws the dividing lines. */
 .grid {
   flex: 1;
   min-height: 0;
@@ -72,13 +66,12 @@ body {
   grid-template-rows: 1fr 1fr;
 }
 .box {
-  background: var(--panel);   /* opaque, so the green grid shows only in the 1px gaps */
-  /* No top padding: the sticky header owns the top edge so nothing peeks above it. */
+  background: var(--panel);
+  /* No top padding: the sticky header owns the top edge. */
   padding: 0 16px 16px;
   min-height: 0;          /* allow the box to shrink within its grid cell */
-  overflow-y: auto;       /* scroll inside the box when content overflows */
+  overflow-y: auto;
 }
-/* Title pinned flush to the top of its box; rows scroll underneath it. */
 .box h2 {
   position: sticky;
   top: 0;
@@ -86,11 +79,10 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 54px;           /* fixed, so every box header is the same height */
+  height: 54px;
   margin: 0 -16px 12px;   /* span to the box's inner edges */
-  padding: 0 16px;        /* content vertically centered within the fixed height */
-  /* Panel fill plus a custom dashed underline (4px dash, 2px gap) drawn as a
-     1px-tall repeating gradient pinned to the bottom edge. */
+  padding: 0 16px;
+  /* Dashed underline: a 1px repeating gradient pinned to the bottom edge. */
   background-color: var(--panel);
   background-image: repeating-linear-gradient(to right, var(--green) 0 4px, transparent 4px 6px);
   background-repeat: no-repeat;
@@ -100,8 +92,7 @@ body {
 }
 .box h2 svg { flex: none; color: var(--green); }
 
-/* Tabbed box: a row of tabs in place of the h2 title, same sticky footprint
-   and dashed underline as a normal box header. */
+/* Tab row in place of the h2 title; same sticky footprint and underline. */
 .box-tabs {
   position: sticky;
   top: 0;
@@ -121,23 +112,16 @@ body {
 .tabs-nav { display: flex; align-items: center; gap: 8px; }
 .box-tabs .tab { font-size: 15px; }
 .box-tabs .tab-active { background: var(--green); color: #000; }
-/* Header buttons/icons in the tab bar follow their own text color (green, or
-   black when hovered/active) rather than the forced-green title icon color. */
+/* Button icons follow the button's own text color, not the forced title green. */
 .box-tabs button svg { color: inherit; }
 
-/* One-line titles: clip to a single line with an ellipsis. Requires min-width:0
-   on the flex item (see .grow) so it can actually shrink below its content. */
+/* Requires min-width:0 on the flex item (see .grow) so it can shrink. */
 .truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Done-log day picker button (calendar) in the box header. */
 .day-btn { width: auto; gap: 6px; padding: 0 10px; }
-/* Active side of the Done header toggle: "Yesterday" or the day picker. */
 .day-btn.day-btn-on { background: var(--green); color: #000; }
-/* Header buttons invert on hover / when active — let their icons follow the
-   button's text color instead of the forced green used for the title icon. */
 .box h2 button svg { color: inherit; }
 
-/* "Post-release action required" highlight on a Done / To-Do line item. */
 .item-row.post-release,
 .todo-line.post-release {
   background: var(--pink);
@@ -152,7 +136,6 @@ body {
 .todo-line.post-release .muted { color: #000; }
 .icon-btn.flag-on { background: var(--green); color: #000; }
 
-/* "Standup question" highlight on a Done / To-Do line item. */
 .item-row.question,
 .todo-line.question {
   background: var(--yellow);
@@ -167,13 +150,43 @@ body {
 .todo-line.question .muted { color: #000; }
 .icon-btn.question-on { background: var(--green); color: #000; }
 
-/* Outer ring on a filter button while items of that kind are outstanding: a
-   1px gap (panel color) just outside the green border, then a 1px colored line.
-   The narrower panel ring is listed first so it paints on top of the color. */
-.icon-btn.glow-pink { box-shadow: 0 0 0 1px var(--panel), 0 0 0 2px var(--pink); }
-.icon-btn.glow-yellow { box-shadow: 0 0 0 1px var(--panel), 0 0 0 2px var(--yellow); }
+/* Filter-button ring while items are outstanding: four dashes rotating in
+   stop-motion. A conic-gradient whose start angle (--glow-a) jumps 15° per
+   250ms frame, masked down to a 1px ring (outer box minus padding box). */
+@property --glow-a {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.icon-btn.glow-pink,
+.icon-btn.glow-yellow { position: relative; }
+.icon-btn.glow-pink::after,
+.icon-btn.glow-yellow::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  pointer-events: none;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--glow-a),
+    currentColor 0deg 75deg, transparent 75deg 90deg,
+    currentColor 90deg 165deg, transparent 165deg 180deg,
+    currentColor 180deg 255deg, transparent 255deg 270deg,
+    currentColor 270deg 345deg, transparent 345deg 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: glow-march 1.5s steps(6, end) infinite;
+}
+.icon-btn.glow-pink::after { color: var(--pink); }
+.icon-btn.glow-yellow::after { color: var(--yellow); }
+/* The pattern repeats every 90°, so 0 → 90deg loops seamlessly. */
+@keyframes glow-march {
+  to { --glow-a: 90deg; }
+}
 
-/* Creation modal */
 .modal-backdrop {
   position: fixed; inset: 0; z-index: 100;
   background: rgba(0, 0, 0, 0.55);
@@ -196,13 +209,11 @@ body {
 }
 .cal-day:hover:not(:disabled) { background: var(--green); color: #000; }
 .cal-day:disabled { opacity: 0.3; cursor: default; }
-/* Row spacing rule: 1rem below each row, none on the last. */
 .row { margin-bottom: 1rem; }
 .row:last-child { margin-bottom: 0; }
 .muted { color: var(--muted); }
 .grip { color: var(--muted); cursor: grab; user-select: none; line-height: 1; }
 .todo-line:active .grip { cursor: grabbing; }
-/* Layout helpers (replacing former inline styles). */
 .item-row { display: flex; align-items: center; gap: 8px; }
 .todo-line { display: flex; align-items: center; gap: 8px; }
 .grow { flex: 1; min-width: 0; }
@@ -220,8 +231,6 @@ body {
   background: var(--bg); border: 1px solid var(--border); border-radius: 0;
   color: var(--muted); white-space: pre-wrap;
 }
-/* Terminal buttons: green on black with a green outline; invert on hover.
-   All controls share one height (--control-h) so they line up. */
 button, button.secondary, .icon-btn {
   height: var(--control-h);
   display: inline-flex; align-items: center; justify-content: center;
@@ -240,11 +249,8 @@ input, textarea, select {
 }
 input:not([type="checkbox"]), select { height: var(--control-h); padding: 0 8px; }
 textarea { padding: 6px 8px; }
-/* Checkbox styled after the cyberpunk-css library's .cyber-check: a bordered
-   square whose inner square scales in when checked. Adapted to our terminal
-   palette (green on black, square corners).
-   Source: https://github.com/alddesign/cyberpunk-css  (demo: https://alddesign.github.io/cyberpunk-css/demo/)
-   Good reference if we want more cyberpunk-styled elements later. */
+/* Checkbox after cyberpunk-css's .cyber-check (github.com/alddesign/cyberpunk-css),
+   adapted to the terminal palette. */
 input[type="checkbox"] {
   -webkit-appearance: none; appearance: none;
   flex: none; margin: 0; cursor: pointer;
@@ -264,8 +270,7 @@ input[type="checkbox"]:checked::before { transform: scale(1); }
 a { color: var(--accent); }
 .error { color: #ff6b6b; }
 
-/* Animated gradient blobs behind the dashboard (black / dark purple / dark blue).
-   Hidden for now — remove this `display: none` to bring the effect back. */
+/* Background blobs, hidden for now — remove `display: none` to bring back. */
 .bg-blobs {
   display: none;
   position: fixed; inset: 0; z-index: -1; overflow: hidden;
@@ -316,11 +321,8 @@ a { color: var(--accent); }
   .blob { animation: none; }
 }
 
-/* "Unaddressed review comment" bubble on a PR row. Stop-motion, never tweened:
-   every segment holds its pose and jumps to the next one. 3s loop on a 250ms
-   frame — 4 frames pop a dot up into the bubble, then 8 frames wave it left,
-   center, right, center, twice over. The pivot is the bottom center, so it
-   rocks on the tail. */
+/* Review-comment bubble on a PR row. Stop-motion on a 250ms frame: 4 frames
+   pop a dot into the bubble, 8 frames rock it on its tail. */
 .pr-bubble {
   display: inline-flex;
   color: var(--yellow);
@@ -340,4 +342,6 @@ a { color: var(--accent); }
 }
 @media (prefers-reduced-motion: reduce) {
   .pr-bubble { animation: none; }
+  .icon-btn.glow-pink::after,
+  .icon-btn.glow-yellow::after { animation: none; }
 }

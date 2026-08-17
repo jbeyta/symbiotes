@@ -11,9 +11,7 @@ export interface Pr {
   needsAttention: boolean;
 }
 
-// One GraphQL request covers every open PR: branch name (so Jira-key linking can
-// read the branch, not just the title), the newest commit date, top-level
-// comments, and inline review threads with GitHub's own resolved state.
+// One GraphQL request covers every open PR plus the signals needsAttention needs.
 const QUERY = `
 query {
   viewer { login }

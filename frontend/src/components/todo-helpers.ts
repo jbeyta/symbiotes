@@ -1,7 +1,6 @@
 import { updateTodo, type TodoView } from "../api.js";
 
 // Flip a to-do's post_release / question flag, then refresh via onChange.
-// Shared by TodosBox, DoneLogBox, and StandupBox.
 export async function toggleFlag(
   t: TodoView,
   field: "post_release" | "question",
@@ -29,22 +28,27 @@ export function yesterdayKey(): string {
   d.setDate(d.getDate() - 1);
   return dayKey(d.toISOString());
 }
+// Most recent weekday before today — Friday when today is Saturday through Monday.
+export function lastWorkDayKey(): string {
+  const d = new Date();
+  do {
+    d.setDate(d.getDate() - 1);
+  } while (d.getDay() === 0 || d.getDay() === 6);
+  return dayKey(d.toISOString());
+}
 export function labelFor(key: string): string {
   if (key === todayKey()) return "Today";
   if (key === yesterdayKey()) return "Yesterday";
   return new Date(`${key}T00:00:00`).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
 }
 
-// Row-highlight modifier for a to-do. Post-release (magenta) takes precedence
-// over a standup question (yellow) when an item carries both flags. Returns a
-// leading-space suffix so it appends cleanly to a base class.
+// Row-highlight class suffix; post-release wins when an item carries both flags.
 export function flagSuffix(t: TodoView): string {
   if (t.post_release) return " post-release";
   if (t.question) return " question";
   return "";
 }
 
-// Full row class for an `item-row` line (Done / Standup).
 export function rowClass(t: TodoView): string {
   return `item-row${flagSuffix(t)}`;
 }

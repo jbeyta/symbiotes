@@ -5,14 +5,12 @@ import { FlagIcon, QuestionIcon } from "./icons.js";
 import { dayKey, labelFor, rowClass, toggleFlag } from "./todo-helpers.js";
 import { type TodoView } from "../api.js";
 
-// Aggregates flagged items across BOTH the open to-do list and the done log.
-// The question filter is the standup default; the flag filter surfaces
-// outstanding post-release actions. Exactly one filter is active at a time.
+// Flagged items across both the open to-do list and the done log; one filter
+// (question or post_release) active at a time.
 export function StandupBox({ todos, onChange }: { todos: TodoView[]; onChange: () => void }) {
   const [filter, setFilter] = useState<"post_release" | "question">("question");
 
-  // Open items (no completed_at) sort ahead of done items; done items sort
-  // newest-first by completion.
+  // Open items first, then done items newest-first by completion.
   const items = todos
     .filter((t) => t[filter])
     .sort((a, b) => {
@@ -23,7 +21,6 @@ export function StandupBox({ todos, onChange }: { todos: TodoView[]; onChange: (
       return bx.localeCompare(ax);
     });
 
-  // Glow a filter button while any item of that kind is outstanding.
   const hasFlagged = todos.some((t) => t.post_release);
   const hasQuestions = todos.some((t) => t.question);
 

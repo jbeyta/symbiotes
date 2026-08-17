@@ -3,13 +3,11 @@ import { useState, type ReactNode } from "react";
 export interface TabDef {
   id: string;
   label: string;
-  // Receives the tab-button nav so the panel can render it in its own sticky
-  // header, next to the panel's own controls (search / filter).
+  // Receives the tab nav so the panel can render it in its own sticky header.
   render: (nav: ReactNode) => ReactNode;
 }
 
-// A box whose sticky header is a row of tabs. Only the active tab is mounted; it
-// renders the shared tab nav (passed in) plus its own header controls.
+// Box with a tab row for a header. Only the active tab is mounted.
 export function TabsBox({ tabs }: { tabs: TabDef[] }) {
   const [active, setActive] = useState(tabs[0]?.id);
   const current = tabs.find((t) => t.id === active) ?? tabs[0];

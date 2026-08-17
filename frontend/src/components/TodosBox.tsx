@@ -18,7 +18,7 @@ export function LinkedId({ text, url }: { text: string; url: string }) {
   );
 }
 
-// Pure helper: return a copy of `arr` with the item at `from` moved to `to`.
+// Copy of `arr` with the item at `from` moved to `to`.
 export function moveItem<T>(arr: T[], from: number, to: number): T[] {
   const next = arr.slice();
   const [item] = next.splice(from, 1);

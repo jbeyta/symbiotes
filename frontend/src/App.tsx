@@ -31,10 +31,8 @@ export default function App() {
     await loadTodos();
   }, [loadTodos]);
 
-  // Only OPEN to-dos disable "Create To-Do" — once an item's to-do is marked
-  // done (it moves to the Done log), the button re-enables so you can make a
-  // fresh one (e.g. the same PR needs another round of changes). Keyed on the
-  // item's URL (stable) rather than its title (which can change upstream).
+  // Only open to-dos disable "Create To-Do", so a done item's PR/ticket can get
+  // a fresh one. Keyed on URL (stable) rather than title (can change upstream).
   const openTodos = todos.filter((t) => !t.done);
   const openTodoUrls = new Set(openTodos.map((t) => t.url).filter(Boolean));
 

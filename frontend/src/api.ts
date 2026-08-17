@@ -8,17 +8,15 @@ export interface DashboardResponse {
 export interface NoteView { id: number; title: string; description: string; created_at: string; updated_at: string; }
 export interface TodoView { id: number; text: string; done: boolean; url: string; note: string; completed_at: string | null; post_release: boolean; question: boolean; created_at: string; updated_at: string; }
 
-// Single listener for failed requests, so components can fire-and-forget
-// mutations while the app still shows the user something went wrong.
-// App.tsx subscribes once and renders the message in the topbar.
+// Single listener for failed requests; App.tsx subscribes once and renders
+// the message in the topbar.
 type ApiErrorListener = (message: string) => void;
 let notifyError: ApiErrorListener = () => {};
 export function onApiError(listener: ApiErrorListener): void {
   notifyError = listener;
 }
 
-// All server calls go through this: it reports a network failure or a non-OK
-// status to the error listener, then rethrows so callers still stop.
+// All server calls go through this: report a failure to the listener, rethrow.
 async function api(path: string, init?: RequestInit): Promise<Response> {
   let res: Response;
   try {
