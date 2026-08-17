@@ -39,32 +39,67 @@ describe("fetchMyTickets", () => {
   });
 });
 
+function gqlPr(over: Record<string, unknown> = {}) {
+  return {
+    number: 42,
+    title: "add login",
+    url: "https://github.com/o/r/pull/42",
+    headRefName: "feature/RW-1-login",
+    repository: { nameWithOwner: "o/r" },
+    commits: { nodes: [{ commit: { committedDate: "2026-08-10T12:00:00Z" } }] },
+    comments: { nodes: [] },
+    reviewThreads: { nodes: [] },
+    ...over,
+  };
+}
+
+function gqlResponse(prs: Record<string, unknown>[]) {
+  return jsonResponse({ data: { viewer: { login: "me" }, search: { nodes: prs } } });
+}
+
 describe("fetchMyOpenPrs", () => {
-  it("maps GitHub search items to PRs", async () => {
-    const stub = vi.fn(async () =>
-      jsonResponse({
-        items: [
-          {
-            number: 42,
-            title: "RW-1 add login",
-            html_url: "https://github.com/o/r/pull/42",
-            repository_url: "https://api.github.com/repos/o/r",
-          },
-        ],
-      })
-    );
+  it("maps GraphQL pull requests to PRs, including the branch", async () => {
+    const stub = vi.fn(async () => gqlResponse([gqlPr()]));
     const prs = await fetchMyOpenPrs(cfg, stub as unknown as typeof fetch);
     expect(prs[0]).toEqual({
       number: 42,
-      title: "RW-1 add login",
+      title: "add login",
       repo: "o/r",
       url: "https://github.com/o/r/pull/42",
-      branch: "",
+      branch: "feature/RW-1-login",
+      needsAttention: false,
     });
+    const [calledUrl] = stub.mock.calls[0] as unknown as [string, RequestInit];
+    expect(calledUrl).toBe("https://api.github.com/graphql");
+  });
+
+  it("sets needsAttention from the review signals", async () => {
+    const stub = vi.fn(async () =>
+      gqlResponse([
+        gqlPr({
+          reviewThreads: {
+            nodes: [{ isResolved: false, comments: { nodes: [{ author: { login: "them" } }] } }],
+          },
+        }),
+      ])
+    );
+    const prs = await fetchMyOpenPrs(cfg, stub as unknown as typeof fetch);
+    expect(prs[0].needsAttention).toBe(true);
+  });
+
+  it("skips non-PullRequest search nodes", async () => {
+    const stub = vi.fn(async () => gqlResponse([{}, gqlPr()]));
+    const prs = await fetchMyOpenPrs(cfg, stub as unknown as typeof fetch);
+    expect(prs).toHaveLength(1);
   });
 
   it("throws on a non-OK response", async () => {
     const stub = vi.fn(async () => jsonResponse({}, false));
     await expect(fetchMyOpenPrs(cfg, stub as unknown as typeof fetch)).rejects.toThrow(/GitHub/);
+  });
+
+  it("throws on a GraphQL error payload", async () => {
+    const stub = vi.fn(async () => jsonResponse({ errors: [{ message: "Bad credentials" }] }));
+    await expect(fetchMyOpenPrs(cfg, stub as unknown as typeof fetch)).rejects.toThrow(/Bad credentials/);
   });
 });

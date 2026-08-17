@@ -28,6 +28,12 @@ Deployment as an always-on launchd agent lives in `deploy/`: `./deploy/install.s
 (build + install + start), `./deploy/update.sh` (rebuild + restart after code
 changes), `./deploy/uninstall.sh`. Logs go to `~/Library/Logs/symbiotes.log`.
 
+`./deploy/auto-update.sh` wraps `update.sh` and runs from the `Stop` hook in
+`.claude/settings.json`, so every Claude Code turn that touches `backend/src`,
+`frontend/src`, `frontend/index.html`, or `frontend/vite.config.ts` lands on
+`http://localhost:3000` on its own. It compares file times against the
+`.deploy-stamp` marker, so a turn that changes no source file rebuilds nothing.
+
 ## Configuration
 
 `.env` at the repo root (not per-package) holds `JIRA_BASE_URL`, `JIRA_EMAIL`,
@@ -62,6 +68,14 @@ response), then links them: `extractJiraKey` runs a regex over each PR's branch
 and title to find an issue key, and each ticket collects the numbers of PRs whose
 key matches. `links.ts` exports a shared regex with a `g` flag — use it only via
 `String.prototype.match` (which resets `lastIndex`), never `.exec`/`.matchAll`.
+
+**GitHub fetch** (`backend/src/github.ts` + `review-flag.ts`). `fetchMyOpenPrs`
+uses one GraphQL request (not REST search) so a single call returns each open PR
+plus its branch, newest commit date, top-level comments, and inline review
+threads. `needsAttention` in `review-flag.ts` is a pure function over those
+signals — it flags a PR when an unresolved thread's last comment is not yours, or
+when someone else's comment is newer than both your last comment and the newest
+commit. Caps: 100 PRs, 50 threads per PR, 50 comments per PR, unpaginated.
 
 **Persistence** (`backend/src/store.ts` interface + `sqlite-store.ts`). SQLite via
 `better-sqlite3` (WAL mode), file `backend/symbiotes.db` (gitignored). Notes and

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getDashboard, listTodos, createTodo, type DashboardResponse, type TodoView } from "./api.js";
+import { getDashboard, listTodos, createTodo, onApiError, type DashboardResponse, type TodoView } from "./api.js";
 import { TabsBox } from "./components/TabsBox.js";
 import { JiraPanel } from "./components/JiraPanel.js";
 import { PrPanel } from "./components/PrPanel.js";
@@ -10,10 +10,14 @@ import { StandupBox } from "./components/StandupBox.js";
 
 const EMPTY: DashboardResponse = { tickets: [], prs: [], errors: { jira: null, github: null } };
 
+// Jira statuses that count as "current work" for the PR box filter.
+const ACTIVE_STATUSES = new Set(["in progress", "in review"]);
+
 export default function App() {
   const [dash, setDash] = useState<DashboardResponse>(EMPTY);
   const [loading, setLoading] = useState(false);
   const [todos, setTodos] = useState<TodoView[]>([]);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -34,6 +38,11 @@ export default function App() {
   const openTodos = todos.filter((t) => !t.done);
   const openTodoUrls = new Set(openTodos.map((t) => t.url).filter(Boolean));
 
+  const activeKeys = new Set(
+    dash.tickets.filter((t) => ACTIVE_STATUSES.has(t.status.toLowerCase())).map((t) => t.key)
+  );
+
+  useEffect(() => { onApiError(setApiError); }, []);
   useEffect(() => { void refresh(); }, [refresh]);
   useEffect(() => { void loadTodos(); }, [loadTodos]);
 
@@ -47,6 +56,12 @@ export default function App() {
       </div>
       <div className="topbar">
         <img className="topbar-logo" src="/symbiotes_2.png" alt="Symbiotes" />
+        {apiError && (
+          <span className="error item-row">
+            {apiError}
+            <button className="icon-btn" aria-label="Dismiss error" title="Dismiss" onClick={() => setApiError(null)}>×</button>
+          </span>
+        )}
         <button onClick={() => void refresh()} disabled={loading}>
           {loading ? "Refreshing…" : "Refresh"}
         </button>
@@ -65,14 +80,14 @@ export default function App() {
               id: "prs",
               label: "PRs",
               render: (nav) => (
-                <PrPanel nav={nav} prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} existingUrls={openTodoUrls} />
+                <PrPanel nav={nav} prs={dash.prs} error={dash.errors.github} onCreateTodo={createTodoFromItem} existingUrls={openTodoUrls} activeKeys={activeKeys} />
               ),
             },
           ]}
         />
         <TodosBox todos={openTodos} onChange={() => void loadTodos()} />
         <DoneLogBox todos={todos} onChange={() => void loadTodos()} />
-        <StandupBox todos={todos} />
+        <StandupBox todos={todos} onChange={() => void loadTodos()} />
       </div>
     </>
   );

@@ -47,6 +47,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 12px;
   padding: 16px 24px;
   border-bottom: 1px solid var(--border);
   position: relative;
@@ -130,6 +131,8 @@ body {
 
 /* Done-log day picker button (calendar) in the box header. */
 .day-btn { width: auto; gap: 6px; padding: 0 10px; }
+/* Active side of the Done header toggle: "Yesterday" or the day picker. */
+.day-btn.day-btn-on { background: var(--green); color: #000; }
 /* Header buttons invert on hover / when active — let their icons follow the
    button's text color instead of the forced green used for the title icon. */
 .box h2 button svg { color: inherit; }
@@ -311,4 +314,30 @@ a { color: var(--accent); }
 }
 @media (prefers-reduced-motion: reduce) {
   .blob { animation: none; }
+}
+
+/* "Unaddressed review comment" bubble on a PR row. Stop-motion, never tweened:
+   every segment holds its pose and jumps to the next one. 3s loop on a 250ms
+   frame — 4 frames pop a dot up into the bubble, then 8 frames wave it left,
+   center, right, center, twice over. The pivot is the bottom center, so it
+   rocks on the tail. */
+.pr-bubble {
+  display: inline-flex;
+  color: var(--yellow);
+  transform-origin: bottom center;
+  animation: pr-bubble 3s steps(1, end) infinite;
+}
+@keyframes pr-bubble {
+  0%      { transform: scale(0.12); opacity: 0; animation-timing-function: steps(4, end); }
+  33.333% { transform: scale(1) rotate(-7deg); opacity: 1; }
+  41.667% { transform: scale(1) rotate(0deg); }
+  50%     { transform: scale(1) rotate(7deg); }
+  58.333% { transform: scale(1) rotate(0deg); }
+  66.667% { transform: scale(1) rotate(-7deg); }
+  75%     { transform: scale(1) rotate(0deg); }
+  83.333% { transform: scale(1) rotate(7deg); }
+  91.667% { transform: scale(1) rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pr-bubble { animation: none; }
 }

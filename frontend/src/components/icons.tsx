@@ -67,6 +67,36 @@ export function QuestionIcon() {
   );
 }
 
+export function EraserIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <path d="M8.2 13.5H14" />
+      <path d="M10.1 2.4 2.4 10.1a1 1 0 0 0 0 1.4l2.1 2.1a1 1 0 0 0 1.4 0l7.7-7.7a1 1 0 0 0 0-1.4l-2.1-2.1a1 1 0 0 0-1.4 0Z" />
+      <path d="M6.3 6.2l3.5 3.5" />
+    </svg>
+  );
+}
+
+// 8-bit speech bubble for the "unaddressed review comment" flag. Drawn on a
+// 16x16 pixel grid with square steps only (no curves, no diagonals) so it reads
+// as pixel art. The three dots are punched out in the panel color.
+export function SpeechBubbleIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M2 2 H14 V10 H9 V11 H8 V12 H7 V11 H6 V10 H2 Z"
+        shapeRendering="crispEdges"
+      />
+      <path
+        fill="var(--panel)"
+        d="M4 5h2v2H4z M7 5h2v2H7z M10 5h2v2h-2z"
+        shapeRendering="crispEdges"
+      />
+    </svg>
+  );
+}
+
 export function GitHubIcon() {
   return (
     <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true" focusable="false">

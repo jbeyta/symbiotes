@@ -1,7 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StandupBox } from "../StandupBox.js";
+import * as api from "../../api.js";
+
+const noop = () => {};
 
 function iso(): string {
   return new Date().toISOString();
@@ -22,8 +25,12 @@ const todos = [
 ];
 
 describe("StandupBox", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("defaults to the question filter, pulling questions from both open and done", () => {
-    render(<StandupBox todos={todos} />);
+    render(<StandupBox todos={todos} onChange={noop} />);
     expect(screen.getByText("Open question")).toBeInTheDocument();
     expect(screen.getByText("Done question")).toBeInTheDocument();
     expect(screen.queryByText("Post-release action")).not.toBeInTheDocument();
@@ -31,7 +38,7 @@ describe("StandupBox", () => {
   });
 
   it("switches to post-release actions from both open and done", async () => {
-    render(<StandupBox todos={todos} />);
+    render(<StandupBox todos={todos} onChange={noop} />);
     await userEvent.click(screen.getByRole("button", { name: "Show post-release actions" }));
     expect(screen.getByText("Post-release action")).toBeInTheDocument();
     expect(screen.getByText("Open post-release")).toBeInTheDocument();
@@ -40,12 +47,31 @@ describe("StandupBox", () => {
   });
 
   it("tags open items as To-Do", () => {
-    render(<StandupBox todos={[todos[0]]} />);
+    render(<StandupBox todos={[todos[0]]} onChange={noop} />);
     expect(screen.getByText("To-Do")).toBeInTheDocument();
   });
 
   it("shows an empty message when nothing matches", () => {
-    render(<StandupBox todos={[todos[4]]} />);
+    render(<StandupBox todos={[todos[4]]} onChange={noop} />);
     expect(screen.getByText("No standup questions.")).toBeInTheDocument();
+  });
+
+  it("clears the question flag from a row and refreshes", async () => {
+    const update = vi.spyOn(api, "updateTodo").mockResolvedValue(todos[0]);
+    const onChange = vi.fn();
+    render(<StandupBox todos={[todos[0]]} onChange={onChange} />);
+    await userEvent.click(screen.getByRole("button", { name: "Clear standup question for Open question" }));
+    expect(update).toHaveBeenCalledWith(1, { question: false });
+    expect(onChange).toHaveBeenCalled();
+  });
+
+  it("clears the post-release flag from a row and refreshes", async () => {
+    const update = vi.spyOn(api, "updateTodo").mockResolvedValue(todos[3]);
+    const onChange = vi.fn();
+    render(<StandupBox todos={[todos[3]]} onChange={onChange} />);
+    await userEvent.click(screen.getByRole("button", { name: "Show post-release actions" }));
+    await userEvent.click(screen.getByRole("button", { name: "Clear post-release action for Open post-release" }));
+    expect(update).toHaveBeenCalledWith(4, { post_release: false });
+    expect(onChange).toHaveBeenCalled();
   });
 });

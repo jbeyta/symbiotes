@@ -25,10 +25,19 @@ export function NotesBox({ notes, onChange }: { notes: NoteView[]; onChange: () 
         <button onClick={() => void add()}>Add Note</button>
       </div>
       {notes.length === 0 && <div className="muted">No notes.</div>}
-      {notes.map((n) => (
+      {notes.map((n) => {
+        const toggle = () => setOpenId(openId === n.id ? null : n.id);
+        return (
         <div className="row" key={n.id}>
           <div className="note-head">
-            <strong className="note-title" onClick={() => setOpenId(openId === n.id ? null : n.id)}>
+            <strong
+              className="note-title"
+              role="button"
+              tabIndex={0}
+              aria-expanded={openId === n.id}
+              onClick={toggle}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } }}
+            >
               {n.title}
             </strong>
             <button className="secondary" aria-label={`Delete ${n.title}`} onClick={() => void remove(n.id)}>
@@ -37,7 +46,8 @@ export function NotesBox({ notes, onChange }: { notes: NoteView[]; onChange: () 
           </div>
           {openId === n.id && <div className="muted note-body">{n.description || "(no description)"}</div>}
         </div>
-      ))}
+        );
+      })}
     </Box>
   );
 }

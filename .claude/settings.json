@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/joelabeyta/Projects/Symbiotes/deploy/auto-update.sh",
+            "async": true,
+            "timeout": 180,
+            "statusMessage": "Rebuilding localhost:3000…"
+          }
+        ]
+      }
+    ]
+  }
+}

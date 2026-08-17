@@ -3,8 +3,8 @@ import { Box } from "./Box.js";
 import { Modal } from "./Modal.js";
 import { Calendar } from "./Calendar.js";
 import { LinkedId } from "./TodosBox.js";
-import { CommentIcon, ClockIcon, CalendarIcon, FlagIcon, QuestionIcon } from "./icons.js";
-import { dayKey, todayKey, labelFor, rowClass } from "./todo-helpers.js";
+import { CommentIcon, ClockIcon, CalendarIcon, EraserIcon, FlagIcon, QuestionIcon } from "./icons.js";
+import { dayKey, todayKey, yesterdayKey, labelFor, rowClass, toggleFlag } from "./todo-helpers.js";
 import { updateTodo, type TodoView } from "../api.js";
 
 // Re-export so existing importers (and tests) can keep pulling dayKey from here.
@@ -18,23 +18,17 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
   const [noteEditId, setNoteEditId] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [moveId, setMoveId] = useState<number | null>(null);
-  const day = selected;
+  // The "Yesterday" toggle overrides the day picker while it is engaged.
+  const [yesterdayOn, setYesterdayOn] = useState(false);
+  const day = yesterdayOn ? yesterdayKey() : selected;
   const items = done.filter((t) => dayKey(t.completed_at!) === day);
   // Days that actually have logged items — the day filter disables the rest.
-  const daysWithItems = new Set(done.map((t) => dayKey(t.completed_at!)));
+  // Today is always selectable, even with nothing logged, so you can jump back
+  // to it after browsing other days.
+  const daysWithItems = new Set([...done.map((t) => dayKey(t.completed_at!)), todayKey()]);
 
   async function uncheck(id: number) {
     await updateTodo(id, { done: false });
-    onChange();
-  }
-
-  async function togglePostRelease(t: TodoView) {
-    await updateTodo(t.id, { post_release: !t.post_release });
-    onChange();
-  }
-
-  async function toggleQuestion(t: TodoView) {
-    await updateTodo(t.id, { question: !t.question });
     onChange();
   }
 
@@ -58,8 +52,22 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
 
   const actions = (
     <span className="item-row">
-      <button className="day-btn" aria-label="Pick day" onClick={() => setDayPickerOpen(true)}>
-        <CalendarIcon /> {labelFor(day)}
+      <button
+        className={yesterdayOn ? "day-btn day-btn-on" : "day-btn"}
+        aria-label="Show yesterday"
+        aria-pressed={yesterdayOn}
+        title={yesterdayOn ? "Back to the picked day" : "Show yesterday"}
+        onClick={() => setYesterdayOn(!yesterdayOn)}
+      >
+        Yesterday
+      </button>
+      <button
+        className={yesterdayOn ? "day-btn" : "day-btn day-btn-on"}
+        aria-label="Pick day"
+        aria-pressed={!yesterdayOn}
+        onClick={() => setDayPickerOpen(true)}
+      >
+        <CalendarIcon /> {labelFor(selected)}
       </button>
     </span>
   );
@@ -84,7 +92,7 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
               aria-label={`${t.post_release ? "Clear" : "Flag"} post-release action for ${t.text}`}
               aria-pressed={t.post_release}
               title={t.post_release ? "Clear post-release flag" : "Flag: post-release action required"}
-              onClick={() => void togglePostRelease(t)}
+              onClick={() => void toggleFlag(t, "post_release", onChange)}
             >
               <FlagIcon />
             </button>
@@ -93,7 +101,7 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
               aria-label={`${t.question ? "Clear" : "Flag"} standup question for ${t.text}`}
               aria-pressed={t.question}
               title={t.question ? "Clear question flag" : "Flag: question for standup"}
-              onClick={() => void toggleQuestion(t)}
+              onClick={() => void toggleFlag(t, "question", onChange)}
             >
               <QuestionIcon />
             </button>
@@ -125,6 +133,9 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
               <div className="note-actions">
                 <button className="icon-btn" aria-label="Save note" title="Save" onClick={() => void saveNote(t.id)}>✓</button>
                 <button className="icon-btn" aria-label="Cancel note" title="Cancel" onClick={() => setNoteEditId(null)}>×</button>
+                <button className="icon-btn" aria-label="Clear note" title="Clear" onClick={() => setNoteDraft("")}>
+                  <EraserIcon />
+                </button>
               </div>
             </div>
           ) : t.note ? (
@@ -139,7 +150,7 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
             initial={day}
             max={todayKey()}
             enabledDays={daysWithItems}
-            onPick={(k) => { setSelected(k); setDayPickerOpen(false); }}
+            onPick={(k) => { setSelected(k); setYesterdayOn(false); setDayPickerOpen(false); }}
           />
         </Modal>
       )}

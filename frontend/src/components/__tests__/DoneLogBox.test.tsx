@@ -54,6 +54,14 @@ describe("DoneLogBox", () => {
     expect(screen.getByRole("button", { name: String(d.getDate()) })).toBeDisabled();
   });
 
+  it("keeps today selectable in the calendar even with nothing logged today", async () => {
+    // Only a yesterday item — nothing today.
+    const noneToday = [todos[1]];
+    render(<DoneLogBox todos={noneToday} onChange={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "Pick day" }));
+    expect(screen.getByRole("button", { name: String(new Date().getDate()) })).not.toBeDisabled();
+  });
+
   it("shows a note read-only and opens an editor on comment-icon click", async () => {
     render(<DoneLogBox todos={todos} onChange={vi.fn()} />);
     // Read-only note visible by default (no editor).

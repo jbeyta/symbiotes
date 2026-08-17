@@ -62,6 +62,23 @@ describe("TodosBox", () => {
     expect(spy).toHaveBeenCalledWith(1, { question: false });
   });
 
+  it("flags a to-do with a post-release action", async () => {
+    const onChange = vi.fn();
+    const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...todos[0], post_release: true });
+    render(<TodosBox todos={todos} onChange={onChange} />);
+    await userEvent.click(screen.getByRole("button", { name: "Flag post-release action for Deploy the thing" }));
+    expect(spy).toHaveBeenCalledWith(1, { post_release: true });
+    expect(onChange).toHaveBeenCalled();
+  });
+
+  it("clears a to-do's post-release flag when already set", async () => {
+    const flagged = [{ ...todos[0], post_release: true }];
+    const spy = vi.spyOn(api, "updateTodo").mockResolvedValue({ ...flagged[0], post_release: false });
+    render(<TodosBox todos={flagged} onChange={vi.fn()} />);
+    await userEvent.click(screen.getByRole("button", { name: "Clear post-release action for Deploy the thing" }));
+    expect(spy).toHaveBeenCalledWith(1, { post_release: false });
+  });
+
   it("removes a todo", async () => {
     const onChange = vi.fn();
     const delSpy = vi.spyOn(api, "deleteTodo").mockResolvedValue(new Response(null, { status: 204 }));

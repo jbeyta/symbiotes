@@ -9,9 +9,9 @@ const tickets: JiraTicket[] = [
   { key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1" },
 ];
 const prs: Pr[] = [
-  { number: 42, title: "RW-1 add login", repo: "o/r", url: "u", branch: "" },
-  { number: 43, title: "chore: bump deps", repo: "o/r", url: "u2", branch: "" },
-  { number: 44, title: "RW-1 follow-up", repo: "o/r", url: "u3", branch: "" },
+  { number: 42, title: "RW-1 add login", repo: "o/r", url: "u", branch: "", needsAttention: false },
+  { number: 43, title: "chore: bump deps", repo: "o/r", url: "u2", branch: "", needsAttention: false },
+  { number: 44, title: "RW-1 follow-up", repo: "o/r", url: "u3", branch: "", needsAttention: false },
 ];
 
 function app(over: Partial<{ getTickets: () => Promise<JiraTicket[]>; getPrs: () => Promise<Pr[]> }> = {}) {

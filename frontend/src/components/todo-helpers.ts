@@ -1,4 +1,18 @@
-import type { TodoView } from "../api.js";
+import { updateTodo, type TodoView } from "../api.js";
+
+// Flip a to-do's post_release / question flag, then refresh via onChange.
+// Shared by TodosBox, DoneLogBox, and StandupBox.
+export async function toggleFlag(
+  t: TodoView,
+  field: "post_release" | "question",
+  onChange: () => void
+): Promise<void> {
+  await updateTodo(
+    t.id,
+    field === "post_release" ? { post_release: !t.post_release } : { question: !t.question }
+  );
+  onChange();
+}
 
 // Local-timezone day key (YYYY-MM-DD) for a timestamp, so "today" matches the
 // user's actual day regardless of the stored UTC value.

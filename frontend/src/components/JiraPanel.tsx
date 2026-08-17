@@ -122,7 +122,7 @@ export function JiraPanel({
             <button
               className="secondary nowrap"
               disabled={added}
-              onClick={() => onCreateTodo(todoText, t.url)}
+              onClick={() => void onCreateTodo(todoText, t.url)}
             >
               {added ? "To-Do added" : "Create To-Do"}
             </button>

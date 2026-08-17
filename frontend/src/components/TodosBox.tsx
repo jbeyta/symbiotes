@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Box } from "./Box.js";
 import { Modal } from "./Modal.js";
-import { CommentIcon, PencilIcon, QuestionIcon } from "./icons.js";
-import { flagSuffix } from "./todo-helpers.js";
+import { CommentIcon, EraserIcon, FlagIcon, PencilIcon, QuestionIcon } from "./icons.js";
+import { flagSuffix, toggleFlag } from "./todo-helpers.js";
 import { createTodo, updateTodo, deleteTodo, reorderTodos, type TodoView } from "../api.js";
 
 // Link only the leading identifier (e.g. "RW-1" or "#42"), like the Jira/PR boxes.
@@ -77,11 +77,6 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
 
   async function toggle(id: number, done: boolean) {
     await updateTodo(id, { done });
-    onChange();
-  }
-
-  async function toggleQuestion(t: TodoView) {
-    await updateTodo(t.id, { question: !t.question });
     onChange();
   }
 
@@ -169,11 +164,20 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
                   </button>
                 )}
                 <button
+                  className={t.post_release ? "icon-btn flag-on" : "icon-btn"}
+                  aria-label={`${t.post_release ? "Clear" : "Flag"} post-release action for ${t.text}`}
+                  aria-pressed={t.post_release}
+                  title={t.post_release ? "Clear post-release flag" : "Flag: post-release action required"}
+                  onClick={() => void toggleFlag(t, "post_release", onChange)}
+                >
+                  <FlagIcon />
+                </button>
+                <button
                   className={t.question ? "icon-btn question-on" : "icon-btn"}
                   aria-label={`${t.question ? "Clear" : "Flag"} standup question for ${t.text}`}
                   aria-pressed={t.question}
                   title={t.question ? "Clear question flag" : "Flag: question for standup"}
-                  onClick={() => void toggleQuestion(t)}
+                  onClick={() => void toggleFlag(t, "question", onChange)}
                 >
                   <QuestionIcon />
                 </button>
@@ -202,6 +206,9 @@ export function TodosBox({ todos, onChange }: { todos: TodoView[]; onChange: () 
               <div className="note-actions">
                 <button className="icon-btn" aria-label="Save note" title="Save" onClick={() => void saveNote(t.id)}>✓</button>
                 <button className="icon-btn" aria-label="Cancel note" title="Cancel" onClick={() => setNoteEditId(null)}>×</button>
+                <button className="icon-btn" aria-label="Clear note" title="Clear" onClick={() => setNoteDraft("")}>
+                  <EraserIcon />
+                </button>
               </div>
             </div>
           ) : t.note ? (
