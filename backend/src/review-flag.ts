@@ -12,6 +12,12 @@ export interface ReviewComment {
 export interface ReviewThread {
   isResolved: boolean;
   lastCommentAuthor: string | null;
+  lastCommentAt: string | null;
+}
+
+export interface PrReview {
+  state: string;
+  submittedAt: string | null;
 }
 
 export interface ReviewSignals {
@@ -22,6 +28,8 @@ export interface ReviewSignals {
   comments: ReviewComment[];
   /** Inline review threads. */
   threads: ReviewThread[];
+  /** Submitted reviews (approvals, change requests, review comments). */
+  reviews: PrReview[];
 }
 
 function time(iso: string | null): number | null {
@@ -58,4 +66,25 @@ export function needsAttention(s: ReviewSignals): boolean {
     if (at === null) return false;
     return cutoff === null || at > cutoff;
   });
+}
+
+/**
+ * True when the PR has an approval and no event after it — no commit, top-level
+ * comment, thread reply, or other review. A stale approval does not count.
+ */
+export function isApproved(s: ReviewSignals): boolean {
+  const approvals = s.reviews
+    .filter((r) => r.state === "APPROVED")
+    .map((r) => time(r.submittedAt))
+    .filter((t): t is number => t !== null);
+  if (approvals.length === 0) return false;
+  const lastApproval = Math.max(...approvals);
+
+  const later = [
+    time(s.lastCommitAt),
+    ...s.comments.map((c) => time(c.createdAt)),
+    ...s.threads.map((t) => time(t.lastCommentAt)),
+    ...s.reviews.filter((r) => r.state !== "APPROVED").map((r) => time(r.submittedAt)),
+  ].filter((t): t is number => t !== null);
+  return later.every((t) => t <= lastApproval);
 }

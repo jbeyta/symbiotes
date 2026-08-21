@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import type { PrView } from "../api.js";
-import { FilterIcon, SpeechBubbleIcon } from "./icons.js";
+import { ApprovedIcon, FilterIcon, SpeechBubbleIcon } from "./icons.js";
 
 // "#<num> - <KEY> <title>", or "#<num> <title>" without a linked ticket.
 function prLabel(p: PrView): string {
@@ -72,7 +72,16 @@ export function PrPanel({
               <a href={p.url} target="_blank" rel="noreferrer">#{p.number}</a>
               {p.jiraKey ? ` - ${p.jiraKey} ${p.title}` : ` ${p.title}`}
             </span>
-            {p.needsAttention && (
+            {p.approved ? (
+              <span
+                className="pr-approved nowrap"
+                role="img"
+                aria-label={`#${p.number} is approved`}
+                title="Approved — nothing new since"
+              >
+                <ApprovedIcon />
+              </span>
+            ) : p.needsAttention ? (
               <span
                 className="pr-bubble nowrap"
                 role="img"
@@ -81,7 +90,7 @@ export function PrPanel({
               >
                 <SpeechBubbleIcon />
               </span>
-            )}
+            ) : null}
             <button
               className="secondary nowrap"
               disabled={added}

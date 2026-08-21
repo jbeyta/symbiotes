@@ -4,7 +4,10 @@ import userEvent from "@testing-library/user-event";
 import { JiraPanel, isDefaultVisibleStatus } from "../JiraPanel.js";
 
 const tickets = [
-  { key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1", prs: [42, 44] },
+  { key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1", prs: [
+    { number: 42, url: "https://github.com/o/r/pull/42", needsAttention: false, approved: false },
+    { number: 44, url: "https://github.com/o/r/pull/44", needsAttention: false, approved: false },
+  ] },
   { key: "RW-2", title: "Old thing", status: "Done", url: "https://x.atlassian.net/browse/RW-2", prs: [] },
 ];
 
@@ -74,7 +77,8 @@ describe("JiraPanel", () => {
 
   it("shows all matching PRs on a ticket", () => {
     render(<JiraPanel tickets={tickets} error={null} onCreateTodo={vi.fn()} />);
-    expect(screen.getByText(/PR #42, #44/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "#42" })).toHaveAttribute("href", "https://github.com/o/r/pull/42");
+    expect(screen.getByRole("link", { name: "#44" })).toHaveAttribute("href", "https://github.com/o/r/pull/44");
   });
 
   it("disables Create To-Do when an open to-do for that item's url exists", () => {

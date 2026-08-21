@@ -1,15 +1,34 @@
-import { useState } from "react";
-import { Box } from "./Box.js";
+import { Modal } from "./Modal.js";
 import { LinkedId } from "./TodosBox.js";
 import { FlagIcon, QuestionIcon } from "./icons.js";
 import { dayKey, labelFor, rowClass, toggleFlag } from "./todo-helpers.js";
 import { type TodoView } from "../api.js";
 
-// Flagged items across both the open to-do list and the done log; one filter
-// (question or post_release) active at a time.
-export function StandupBox({ todos, onChange }: { todos: TodoView[]; onChange: () => void }) {
-  const [filter, setFilter] = useState<"post_release" | "question">("question");
+export type StandupFilter = "post_release" | "question";
 
+const TITLE: Record<StandupFilter, string> = {
+  post_release: "Post-release actions",
+  question: "Standup questions",
+};
+
+const EMPTY: Record<StandupFilter, string> = {
+  post_release: "No post-release actions.",
+  question: "No standup questions.",
+};
+
+// Flagged items across both the open to-do list and the done log; the topbar
+// button picks which flag the modal shows.
+export function StandupModal({
+  todos,
+  filter,
+  onChange,
+  onClose,
+}: {
+  todos: TodoView[];
+  filter: StandupFilter;
+  onChange: () => void;
+  onClose: () => void;
+}) {
   // Open items first, then done items newest-first by completion.
   const items = todos
     .filter((t) => t[filter])
@@ -21,37 +40,9 @@ export function StandupBox({ todos, onChange }: { todos: TodoView[]; onChange: (
       return bx.localeCompare(ax);
     });
 
-  const hasFlagged = todos.some((t) => t.post_release);
-  const hasQuestions = todos.some((t) => t.question);
-
-  const actions = (
-    <span className="item-row">
-      <button
-        className={`icon-btn${filter === "post_release" ? " flag-on" : ""}${hasFlagged ? " glow-pink" : ""}`}
-        aria-label="Show post-release actions"
-        aria-pressed={filter === "post_release"}
-        title="Show post-release actions"
-        onClick={() => setFilter("post_release")}
-      >
-        <FlagIcon />
-      </button>
-      <button
-        className={`icon-btn${filter === "question" ? " question-on" : ""}${hasQuestions ? " glow-yellow" : ""}`}
-        aria-label="Show standup questions"
-        aria-pressed={filter === "question"}
-        title="Show standup questions"
-        onClick={() => setFilter("question")}
-      >
-        <QuestionIcon />
-      </button>
-    </span>
-  );
-
-  const emptyMsg = filter === "post_release" ? "No post-release actions." : "No standup questions.";
-
   return (
-    <Box title="//" action={actions}>
-      {items.length === 0 && <div className="muted">{emptyMsg}</div>}
+    <Modal title={TITLE[filter]} onClose={onClose} size="quarter">
+      {items.length === 0 && <div className="muted">{EMPTY[filter]}</div>}
       {items.map((t) => (
         <div className="row" key={t.id}>
           <div className={rowClass(t)}>
@@ -81,6 +72,9 @@ export function StandupBox({ todos, onChange }: { todos: TodoView[]; onChange: (
           {t.note ? <div className="note-readonly">{t.note}</div> : null}
         </div>
       ))}
-    </Box>
+      <div className="modal-actions">
+        <button onClick={onClose}>Done</button>
+      </div>
+    </Modal>
   );
 }

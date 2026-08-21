@@ -198,6 +198,12 @@ body {
   width: 340px; max-width: calc(100vw - 32px);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
+/* Standup modal: the footprint of one grid box, with the list scrolling inside. */
+.modal-quarter {
+  width: 50vw; height: 50vh;
+  max-width: calc(100vw - 32px); max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
 .modal-title { margin: 0 0 14px; font-size: 15px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
@@ -249,23 +255,29 @@ input, textarea, select {
 }
 input:not([type="checkbox"]), select { height: var(--control-h); padding: 0 8px; }
 textarea { padding: 6px 8px; }
-/* Checkbox after cyberpunk-css's .cyber-check (github.com/alddesign/cyberpunk-css),
-   adapted to the terminal palette. */
 input[type="checkbox"] {
   -webkit-appearance: none; appearance: none;
   flex: none; margin: 0; cursor: pointer;
   width: 18px; height: 18px;
   background: #000; border: 1px solid var(--green); border-radius: 0;
-  display: inline-grid; place-content: center;
+  position: relative;
 }
-input[type="checkbox"]::before {
+/* 8-bit checkmark, a little bigger than the box: the vertex sits inside and the
+   long leg sticks out of the box's top right. Shown on hover as a preview and
+   always when checked (the Done log). */
+input[type="checkbox"]::after {
   content: "";
-  width: 10px; height: 10px;
+  position: absolute;
+  left: 2px; bottom: 4px;
+  width: 22.5px; height: 17.5px;
   background: var(--green);
-  transform: scale(0);
-  transition: transform 120ms ease-in-out;
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 7"><path d="M8 0h1v1h-1zM7 1h2v1h-2zM6 2h2v1h-2zM5 3h2v1h-2zM0 4h2v1h-2zM4 4h2v1h-2zM1 5h4v1h-4zM2 6h2v1h-2z"/></svg>') no-repeat center / contain;
+  mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 7"><path d="M8 0h1v1h-1zM7 1h2v1h-2zM6 2h2v1h-2zM5 3h2v1h-2zM0 4h2v1h-2zM4 4h2v1h-2zM1 5h4v1h-4zM2 6h2v1h-2z"/></svg>') no-repeat center / contain;
+  opacity: 0;
+  pointer-events: none;
 }
-input[type="checkbox"]:checked::before { transform: scale(1); }
+input[type="checkbox"]:hover::after,
+input[type="checkbox"]:checked::after { opacity: 1; }
 .search { width: 140px; font-size: 13px; }
 a { color: var(--accent); }
 .error { color: #ff6b6b; }
@@ -323,9 +335,14 @@ a { color: var(--accent); }
 
 /* Review-comment bubble on a PR row. Stop-motion on a 250ms frame: 4 frames
    pop a dot into the bubble, 8 frames rock it on its tail. */
+/* Keep the pixel art crisp when scaled up from its native 78x35. */
+.eyes-icon { height: 40px; width: auto; image-rendering: pixelated; }
+
+.pr-approved { color: var(--green); }
+.pr-bubble { color: var(--yellow); }
+.pr-approved,
 .pr-bubble {
   display: inline-flex;
-  color: var(--yellow);
   transform-origin: bottom center;
   animation: pr-bubble 3s steps(1, end) infinite;
 }
@@ -341,6 +358,7 @@ a { color: var(--accent); }
   91.667% { transform: scale(1) rotate(0deg); }
 }
 @media (prefers-reduced-motion: reduce) {
+  .pr-approved,
   .pr-bubble { animation: none; }
   .icon-btn.glow-pink::after,
   .icon-btn.glow-yellow::after { animation: none; }

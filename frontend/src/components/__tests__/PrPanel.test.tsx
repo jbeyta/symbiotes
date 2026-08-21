@@ -5,7 +5,7 @@ import { PrPanel } from "../PrPanel.js";
 import type { PrView } from "../../api.js";
 
 const prs: PrView[] = [
-  { number: 42, title: "add login", repo: "o/r", url: "https://github.com/o/r/pull/42", branch: "", jiraKey: "RW-1", needsAttention: false },
+  { number: 42, title: "add login", repo: "o/r", url: "https://github.com/o/r/pull/42", branch: "", jiraKey: "RW-1", needsAttention: false, approved: false },
 ];
 
 describe("PrPanel", () => {
@@ -40,7 +40,7 @@ describe("PrPanel", () => {
   it("filters rows by the search box", async () => {
     const many: PrView[] = [
       ...prs,
-      { number: 99, title: "bump deps", repo: "o/r", url: "https://github.com/o/r/pull/99", branch: "", jiraKey: null, needsAttention: false },
+      { number: 99, title: "bump deps", repo: "o/r", url: "https://github.com/o/r/pull/99", branch: "", jiraKey: null, needsAttention: false, approved: false },
     ];
     render(<PrPanel prs={many} error={null} onCreateTodo={vi.fn()} />);
     await userEvent.type(screen.getByRole("searchbox", { name: "Search PRs" }), "deps");
@@ -61,6 +61,15 @@ describe("PrPanel", () => {
     render(<PrPanel prs={two} error={null} onCreateTodo={vi.fn()} />);
     expect(screen.getByRole("img", { name: "Unaddressed review comment on #99" })).toBeInTheDocument();
     expect(screen.queryByRole("img", { name: "Unaddressed review comment on #42" })).not.toBeInTheDocument();
+  });
+
+  it("shows the approval check instead of the bubble when a PR is approved", () => {
+    const two: PrView[] = [
+      { ...prs[0], approved: true, needsAttention: true },
+    ];
+    render(<PrPanel prs={two} error={null} onCreateTodo={vi.fn()} />);
+    expect(screen.getByRole("img", { name: "#42 is approved" })).toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: /Unaddressed review comment/ })).not.toBeInTheDocument();
   });
 
   it("narrows to PRs on in-progress / in-review tickets when Current work is on", async () => {

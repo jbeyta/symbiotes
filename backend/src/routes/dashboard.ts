@@ -3,7 +3,9 @@ import type { JiraTicket } from "../jira.js";
 import type { Pr } from "../github.js";
 import { extractJiraKey } from "../links.js";
 
-export interface DashTicket extends JiraTicket { prs: number[]; }
+/** The parts of a linked PR a ticket row needs to render a link and its flags. */
+export interface TicketPr { number: number; url: string; needsAttention: boolean; approved: boolean; }
+export interface DashTicket extends JiraTicket { prs: TicketPr[]; }
 export interface DashPr extends Pr { jiraKey: string | null; }
 export interface DashboardResponse {
   tickets: DashTicket[];
@@ -30,7 +32,9 @@ export async function buildDashboard(deps: DashboardDeps): Promise<DashboardResp
   const dashPrs: DashPr[] = prs.map((p) => ({ ...p, jiraKey: extractJiraKey(p.branch, p.title) }));
   const dashTickets: DashTicket[] = tickets.map((t) => ({
     ...t,
-    prs: dashPrs.filter((p) => p.jiraKey === t.key).map((p) => p.number),
+    prs: dashPrs
+      .filter((p) => p.jiraKey === t.key)
+      .map((p) => ({ number: p.number, url: p.url, needsAttention: p.needsAttention, approved: p.approved })),
   }));
 
   return { tickets: dashTickets, prs: dashPrs, errors };

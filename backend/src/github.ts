@@ -1,5 +1,5 @@
 import type { Config } from "./config.js";
-import { needsAttention } from "./review-flag.js";
+import { isApproved, needsAttention } from "./review-flag.js";
 
 export interface Pr {
   number: number;
@@ -9,6 +9,8 @@ export interface Pr {
   branch: string;
   /** A review comment is waiting on me — see review-flag.ts for the rule. */
   needsAttention: boolean;
+  /** Approved, with no commit/comment/review after the approval. */
+  approved: boolean;
 }
 
 // One GraphQL request covers every open PR plus the signals needsAttention needs.
@@ -25,8 +27,9 @@ query {
         repository { nameWithOwner }
         commits(last: 1) { nodes { commit { committedDate } } }
         comments(last: 50) { nodes { createdAt author { login } } }
+        reviews(last: 30) { nodes { state submittedAt } }
         reviewThreads(first: 50) {
-          nodes { isResolved comments(last: 1) { nodes { author { login } } } }
+          nodes { isResolved comments(last: 1) { nodes { createdAt author { login } } } }
         }
       }
     }
@@ -42,7 +45,8 @@ interface GqlPr {
   repository: { nameWithOwner: string };
   commits: { nodes: { commit: { committedDate: string } }[] };
   comments: { nodes: { createdAt: string; author: GqlAuthor | null }[] };
-  reviewThreads: { nodes: { isResolved: boolean; comments: { nodes: { author: GqlAuthor | null }[] } }[] };
+  reviews: { nodes: { state: string; submittedAt: string | null }[] };
+  reviewThreads: { nodes: { isResolved: boolean; comments: { nodes: { createdAt: string; author: GqlAuthor | null }[] } }[] };
 }
 interface GqlBody {
   data?: { viewer: { login: string }; search: { nodes: (GqlPr | Record<string, never>)[] } };
@@ -74,13 +78,8 @@ export async function fetchMyOpenPrs(
   // The search returns Issues too; only PullRequest nodes carry `number`.
   const nodes = body.data.search.nodes.filter((n): n is GqlPr => "number" in n);
 
-  return nodes.map((p) => ({
-    number: p.number,
-    title: p.title,
-    repo: p.repository.nameWithOwner,
-    url: p.url,
-    branch: p.headRefName,
-    needsAttention: needsAttention({
+  return nodes.map((p) => {
+    const signals = {
       viewerLogin,
       lastCommitAt: p.commits.nodes[0]?.commit.committedDate ?? null,
       comments: p.comments.nodes.map((c) => ({
@@ -90,7 +89,19 @@ export async function fetchMyOpenPrs(
       threads: p.reviewThreads.nodes.map((t) => ({
         isResolved: t.isResolved,
         lastCommentAuthor: t.comments.nodes[0]?.author?.login ?? null,
+        lastCommentAt: t.comments.nodes[0]?.createdAt ?? null,
       })),
-    }),
-  }));
+      reviews: p.reviews.nodes.map((r) => ({ state: r.state, submittedAt: r.submittedAt })),
+    };
+    const approved = isApproved(signals);
+    return {
+      number: p.number,
+      title: p.title,
+      repo: p.repository.nameWithOwner,
+      url: p.url,
+      branch: p.headRefName,
+      approved,
+      needsAttention: !approved && needsAttention(signals),
+    };
+  });
 }

@@ -36,10 +36,14 @@ export function lastWorkDayKey(): string {
   } while (d.getDay() === 0 || d.getDay() === 6);
   return dayKey(d.toISOString());
 }
+// Always the date, e.g. "Mon, Aug 10".
+export function dateLabel(key: string): string {
+  return new Date(`${key}T00:00:00`).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+}
 export function labelFor(key: string): string {
   if (key === todayKey()) return "Today";
   if (key === yesterdayKey()) return "Yesterday";
-  return new Date(`${key}T00:00:00`).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  return dateLabel(key);
 }
 
 // Row-highlight class suffix; post-release wins when an item carries both flags.

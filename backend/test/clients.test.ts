@@ -48,6 +48,7 @@ function gqlPr(over: Record<string, unknown> = {}) {
     repository: { nameWithOwner: "o/r" },
     commits: { nodes: [{ commit: { committedDate: "2026-08-10T12:00:00Z" } }] },
     comments: { nodes: [] },
+    reviews: { nodes: [] },
     reviewThreads: { nodes: [] },
     ...over,
   };
@@ -68,6 +69,7 @@ describe("fetchMyOpenPrs", () => {
       url: "https://github.com/o/r/pull/42",
       branch: "feature/RW-1-login",
       needsAttention: false,
+      approved: false,
     });
     const [calledUrl] = stub.mock.calls[0] as unknown as [string, RequestInit];
     expect(calledUrl).toBe("https://api.github.com/graphql");
@@ -85,6 +87,22 @@ describe("fetchMyOpenPrs", () => {
     );
     const prs = await fetchMyOpenPrs(cfg, stub as unknown as typeof fetch);
     expect(prs[0].needsAttention).toBe(true);
+  });
+
+  it("marks a PR approved and drops needsAttention when the approval is last", async () => {
+    const stub = vi.fn(async () =>
+      gqlResponse([
+        gqlPr({
+          reviews: { nodes: [{ state: "APPROVED", submittedAt: "2026-08-11T09:00:00Z" }] },
+          reviewThreads: {
+            nodes: [{ isResolved: false, comments: { nodes: [{ createdAt: "2026-08-10T15:00:00Z", author: { login: "them" } }] } }],
+          },
+        }),
+      ])
+    );
+    const prs = await fetchMyOpenPrs(cfg, stub as unknown as typeof fetch);
+    expect(prs[0].approved).toBe(true);
+    expect(prs[0].needsAttention).toBe(false);
   });
 
   it("skips non-PullRequest search nodes", async () => {

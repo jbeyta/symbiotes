@@ -110,13 +110,23 @@ export function JiraPanel({
       {shown.map((t) => {
         const todoText = `${t.key} ${t.title}`;
         const added = existingUrls.has(t.url);
-        const prs = t.prs.length > 0 ? ` · PR ${t.prs.map((n) => `#${n}`).join(", ")}` : "";
+        const prTitle = t.prs.length > 0 ? ` · PR ${t.prs.map((p) => `#${p.number}`).join(", ")}` : "";
         return (
           <div className="row item-row" key={t.key}>
-            <span className="grow truncate" title={`${t.key} ${t.title} · ${t.status}${prs}`}>
+            <span className="grow truncate" title={`${t.key} ${t.title} · ${t.status}${prTitle}`}>
               <a href={t.url} target="_blank" rel="noreferrer"><strong>{t.key}</strong></a> {t.title}{" "}
               <span className="muted">· {t.status}</span>
-              {t.prs.length > 0 && <span className="muted">{prs}</span>}
+              {t.prs.length > 0 && (
+                <span className="muted">
+                  {" · PR "}
+                  {t.prs.map((p, i) => (
+                    <span key={p.url}>
+                      {i > 0 && ", "}
+                      <a href={p.url} target="_blank" rel="noreferrer">#{p.number}</a>
+                    </span>
+                  ))}
+                </span>
+              )}
             </span>
             <button
               className="secondary nowrap"

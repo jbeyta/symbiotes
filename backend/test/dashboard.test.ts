@@ -9,9 +9,9 @@ const tickets: JiraTicket[] = [
   { key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1" },
 ];
 const prs: Pr[] = [
-  { number: 42, title: "RW-1 add login", repo: "o/r", url: "u", branch: "", needsAttention: false },
-  { number: 43, title: "chore: bump deps", repo: "o/r", url: "u2", branch: "", needsAttention: false },
-  { number: 44, title: "RW-1 follow-up", repo: "o/r", url: "u3", branch: "", needsAttention: false },
+  { number: 42, title: "RW-1 add login", repo: "o/r", url: "u", branch: "", needsAttention: false, approved: false },
+  { number: 43, title: "chore: bump deps", repo: "o/r", url: "u2", branch: "", needsAttention: false, approved: false },
+  { number: 44, title: "RW-1 follow-up", repo: "o/r", url: "u3", branch: "", needsAttention: false, approved: false },
 ];
 
 function app(over: Partial<{ getTickets: () => Promise<JiraTicket[]>; getPrs: () => Promise<Pr[]> }> = {}) {
@@ -27,7 +27,13 @@ describe("GET /api/dashboard", () => {
     const res = await request(app()).get("/api/dashboard");
     expect(res.status).toBe(200);
     // A ticket lists every matching open PR, not just the first.
-    expect(res.body.tickets[0]).toEqual({ key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1", prs: [42, 44] });
+    expect(res.body.tickets[0]).toEqual({
+      key: "RW-1", title: "Fix login", status: "In Progress", url: "https://x.atlassian.net/browse/RW-1",
+      prs: [
+        { number: 42, url: "u", needsAttention: false, approved: false },
+        { number: 44, url: "u3", needsAttention: false, approved: false },
+      ],
+    });
     expect(res.body.prs.find((p: any) => p.number === 42).jiraKey).toBe("RW-1");
     expect(res.body.prs.find((p: any) => p.number === 43).jiraKey).toBeNull();
     expect(res.body.errors).toEqual({ jira: null, github: null });

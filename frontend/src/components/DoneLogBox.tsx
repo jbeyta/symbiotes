@@ -4,7 +4,7 @@ import { Modal } from "./Modal.js";
 import { Calendar } from "./Calendar.js";
 import { LinkedId } from "./TodosBox.js";
 import { CommentIcon, ClockIcon, CalendarIcon, EraserIcon, FlagIcon, QuestionIcon } from "./icons.js";
-import { dayKey, todayKey, lastWorkDayKey, labelFor, rowClass, toggleFlag } from "./todo-helpers.js";
+import { dayKey, todayKey, lastWorkDayKey, labelFor, dateLabel, rowClass, toggleFlag } from "./todo-helpers.js";
 import { updateTodo, type TodoView } from "../api.js";
 
 // Re-export so existing importers (and tests) can keep pulling dayKey from here.
@@ -18,9 +18,11 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
   const [noteEditId, setNoteEditId] = useState<number | null>(null);
   const [noteDraft, setNoteDraft] = useState("");
   const [moveId, setMoveId] = useState<number | null>(null);
-  // "Yesterday" = last work day (Friday on a Monday); overrides the day picker.
-  const [yesterdayOn, setYesterdayOn] = useState(false);
-  const day = yesterdayOn ? lastWorkDayKey() : selected;
+  const day = selected;
+  // "Yesterday" = last work day (Friday on a Monday). The picker button reads
+  // as engaged only when the selected day is neither of the two shortcuts.
+  const onYesterday = day === lastWorkDayKey();
+  const onToday = day === todayKey();
   const items = done.filter((t) => dayKey(t.completed_at!) === day);
   // The day picker only enables days with logged items, plus today.
   const daysWithItems = new Set([...done.map((t) => dayKey(t.completed_at!)), todayKey()]);
@@ -51,21 +53,30 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
   const actions = (
     <span className="item-row">
       <button
-        className={yesterdayOn ? "day-btn day-btn-on" : "day-btn"}
-        aria-label="Show yesterday"
-        aria-pressed={yesterdayOn}
-        title={yesterdayOn ? "Back to the picked day" : "Show yesterday"}
-        onClick={() => setYesterdayOn(!yesterdayOn)}
+        className={onYesterday ? "day-btn day-btn-on" : "day-btn"}
+        aria-label="Show the last work day"
+        aria-pressed={onYesterday}
+        title="Show the last work day"
+        onClick={() => setSelected(lastWorkDayKey())}
       >
         Yesterday
       </button>
       <button
-        className={yesterdayOn ? "day-btn" : "day-btn day-btn-on"}
+        className={onToday ? "day-btn day-btn-on" : "day-btn"}
+        aria-label="Show today"
+        aria-pressed={onToday}
+        title="Show today"
+        onClick={() => setSelected(todayKey())}
+      >
+        Today
+      </button>
+      <button
+        className={!onYesterday && !onToday ? "day-btn day-btn-on" : "day-btn"}
         aria-label="Pick day"
-        aria-pressed={!yesterdayOn}
+        aria-pressed={!onYesterday && !onToday}
         onClick={() => setDayPickerOpen(true)}
       >
-        <CalendarIcon /> {labelFor(selected)}
+        <CalendarIcon /> {dateLabel(day)}
       </button>
     </span>
   );
@@ -148,7 +159,7 @@ export function DoneLogBox({ todos, onChange }: { todos: TodoView[]; onChange: (
             initial={day}
             max={todayKey()}
             enabledDays={daysWithItems}
-            onPick={(k) => { setSelected(k); setYesterdayOn(false); setDayPickerOpen(false); }}
+            onPick={(k) => { setSelected(k); setDayPickerOpen(false); }}
           />
         </Modal>
       )}

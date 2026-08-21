@@ -1,5 +1,6 @@
-export interface JiraTicketView { key: string; title: string; status: string; url: string; prs: number[]; }
-export interface PrView { number: number; title: string; repo: string; url: string; branch: string; jiraKey: string | null; needsAttention: boolean; }
+export interface TicketPrView { number: number; url: string; needsAttention: boolean; approved: boolean; }
+export interface JiraTicketView { key: string; title: string; status: string; url: string; prs: TicketPrView[]; }
+export interface PrView { number: number; title: string; repo: string; url: string; branch: string; jiraKey: string | null; needsAttention: boolean; approved: boolean; }
 export interface DashboardResponse {
   tickets: JiraTicketView[];
   prs: PrView[];

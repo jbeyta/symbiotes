@@ -5,7 +5,9 @@ import { JiraPanel } from "./components/JiraPanel.js";
 import { PrPanel } from "./components/PrPanel.js";
 import { DoneLogBox } from "./components/DoneLogBox.js";
 import { TodosBox } from "./components/TodosBox.js";
-import { StandupBox } from "./components/StandupBox.js";
+import { EyesOnBox } from "./components/EyesOnBox.js";
+import { StandupModal, type StandupFilter } from "./components/StandupModal.js";
+import { FlagIcon, QuestionIcon } from "./components/icons.js";
 // NotesBox is kept for possible future use; swap it back into the grid to re-enable.
 
 const EMPTY: DashboardResponse = { tickets: [], prs: [], errors: { jira: null, github: null } };
@@ -18,6 +20,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [todos, setTodos] = useState<TodoView[]>([]);
   const [apiError, setApiError] = useState<string | null>(null);
+  // Which standup category the modal shows; null keeps it closed.
+  const [standup, setStandup] = useState<StandupFilter | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -35,6 +39,9 @@ export default function App() {
   // a fresh one. Keyed on URL (stable) rather than title (can change upstream).
   const openTodos = todos.filter((t) => !t.done);
   const openTodoUrls = new Set(openTodos.map((t) => t.url).filter(Boolean));
+
+  const hasFlagged = todos.some((t) => t.post_release);
+  const hasQuestions = todos.some((t) => t.question);
 
   const activeKeys = new Set(
     dash.tickets.filter((t) => ACTIVE_STATUSES.has(t.status.toLowerCase())).map((t) => t.key)
@@ -60,6 +67,22 @@ export default function App() {
             <button className="icon-btn" aria-label="Dismiss error" title="Dismiss" onClick={() => setApiError(null)}>×</button>
           </span>
         )}
+        <button
+          className={`icon-btn${hasFlagged ? " glow-pink" : ""}`}
+          aria-label="Show post-release actions"
+          title="Show post-release actions"
+          onClick={() => setStandup("post_release")}
+        >
+          <FlagIcon />
+        </button>
+        <button
+          className={`icon-btn${hasQuestions ? " glow-yellow" : ""}`}
+          aria-label="Show standup questions"
+          title="Show standup questions"
+          onClick={() => setStandup("question")}
+        >
+          <QuestionIcon />
+        </button>
         <button onClick={() => void refresh()} disabled={loading}>
           {loading ? "Refreshing…" : "Refresh"}
         </button>
@@ -83,10 +106,18 @@ export default function App() {
             },
           ]}
         />
+        <EyesOnBox tickets={dash.tickets} />
         <TodosBox todos={openTodos} onChange={() => void loadTodos()} />
         <DoneLogBox todos={todos} onChange={() => void loadTodos()} />
-        <StandupBox todos={todos} onChange={() => void loadTodos()} />
       </div>
+      {standup && (
+        <StandupModal
+          todos={todos}
+          filter={standup}
+          onChange={() => void loadTodos()}
+          onClose={() => setStandup(null)}
+        />
+      )}
     </>
   );
 }
